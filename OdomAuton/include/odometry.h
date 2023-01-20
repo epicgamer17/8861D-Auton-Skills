@@ -3,7 +3,7 @@
 //The current angle of the bot (RADIANS)
 extern float currentAbsoluteOrientation;
 
-//The global position of the bot (INCHES)
+//The global position of the bot (METERS)
 extern float globalX;
 extern float globalY;
 
