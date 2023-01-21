@@ -317,179 +317,145 @@ int PIDTask() {
   return 1;
 }
 
-// void PID() {
-//   while (enablePID) {
-//     xError = desiredX - globalX;
-//     yError = desiredY - globalY;
-//     float inertialRadians = (inertialSensor.heading() - 45) * (M_PI/180);
-//     float temp = yError * cos(inertialRadians) + xError * sin(inertialRadians);
-//     xError = yError * sin(inertialRadians) + xError * cos(inertialRadians);
-//     yError = temp;
+////////////////////////////
+/// Pure Pursuit 
+////////////////////////////
 
-//     // Derivative 
-//     yDerivative =  yError - yPrevError; //may need to flip // is this equal to ticks travelled? 
+int lastFoundIndex = 0;
+float lookAheadDis = 0.8;
+float linearVel = 100;
 
-//     // Velocity -> Position -> Absement // Integral
-//     //Integral
-//     if(fabs(yError) < integralBound){
-//     yTotalError+=yError; 
-//     }  else {
-//       yTotalError = 0; 
-//     }
-//     //totalError += error;
+// set this to true if you use rotations
+bool using_rotation = false;
 
-//     //This would cap the integral
-//     yTotalError = fabs(yTotalError) > maxIntegral ? signnum_c(yTotalError) * maxIntegral : yTotalError;
+// this determines how long (how many frames) the animation will run. 400 frames takes around 30 seconds.
+int numOfFrames = 400;
 
-//     // Calculate motor power
-//     double yMotorPower = (yError * kP) + (yDerivative * kD) + (yTotalError * kI); 
-//     //   pidDrive = (pid_Kp * pidError);
+float goalPt[] = {0, 0};
 
-//     // Derivative 
-//     xDerivative =  xError - xPrevError; //may need to flip // is this equal to ticks travelled? 
+float pt_to_pt_distance (float x1, float y1, float x2, float y2) {
+    float dist = sqrt(( pow((x2 - x1),2) + pow((y2 - y1),2)));
+    return dist;
+  }
 
-//     // Velocity -> Position -> Absement // Integral
-//     //Integral
-//     if(fabs(xError) < integralBound){
-//     xTotalError+=xError; 
-//     }  else {
-//       xTotalError = 0; 
-//     }
-//     //totalError += error;
+// returns -1 if num is negative, 1 otherwise
+int sgn (float num) {
+  if (num >= 0)
+    return 1;
+  else
+    return -1;
+  }
 
-//     //This would cap the integral
-//     xTotalError = fabs(xTotalError) > maxIntegral ? signnum_c(xTotalError) * maxIntegral : xTotalError;
+void pure_pursuit_step (float path[][2], float currentHeading, float lookAheadDis, int LFindex, int* lastINDEX){
+    // use for loop to search intersections
+    int lastFoundIndex = LFindex;
+    bool intersectFound;
+    int startingIndex = lastFoundIndex;
 
-//     // Calculate motor power
-//     double xMotorPower = (xError * kP) + (xDerivative * kD) + (xTotalError * kI); 
+    for (int i = startingIndex; i < (sizeof(*path)); i++) {
+        // beginning of line-circle intersection code
+        float x1 = path[i][0] - globalX;
+        float y1 = path[i][1] - globalY;
+        float x2 = path[i+1][0] - globalX;
+        float y2 = path[i+1][1] - globalY;
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float dr = sqrt(pow(dx,2) + pow(dy,2));
+        float D = x1*y2 - x2*y1;
+        float discriminant = (pow(lookAheadDis,2)) * (pow(dr,2)) - pow(D,2);
+        float solX1;
+        float solX2;
+        float solY1;
+        float solY2;
+        float solPt1[2];
+        float solPt2[2];
+        float minX;
+        float minY;
+        float maxX;
+        float maxY;
 
+        if (discriminant >= 0) {
+            solX1 = (D * dy + sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
+            solX2 = (D * dy - sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
+            solY1 = (- D * dx + fabs(dy) * sqrt(discriminant)) / pow(dr,2);
+            solY2 = (- D * dx - fabs(dy) * sqrt(discriminant)) / pow(dr,2);
 
-//     frontLeft.spin(fwd, xMotorPower + turnMotorPower, velocityUnits::pct); // could use voltage
-//     backLeft.spin(fwd, yMotorPower + turnMotorPower , velocityUnits::pct); // could use voltage
-//     frontRight.spin(fwd, yMotorPower - turnMotorPower, velocityUnits::pct); // could use voltage
-//     backRight.spin(fwd, xMotorPower - turnMotorPower, velocityUnits::pct); // could use voltage
+            solPt1[0] = {solX1 + globalX};
+            solPt2[0] = {solX2 + globalX};
+            solPt1[1] = {solY1 + globalY};
+            solPt2[1] = {solY2 + globalY};
+            // end of line-circle intersection code
 
+            minX = fmin(path[i][0], path[i+1][0]);
+            minY = fmin(path[i][1], path[i+1][1]);
+            maxX = fmax(path[i][0], path[i+1][0]);
+            maxY = fmax(path[i][1], path[i+1][1]);
 
-//     yPrevError = yError;
-//     xPrevError = xError;
-//     turnPrevError = turnError;
+        // if one or both of the solutions are in range
+        if (((minX <= solPt1[0] <= maxX) && (minY <= solPt1[1] <= maxY)) || ((minX <= solPt2[0] <= maxX) && (minY <= solPt2[1] <= maxY))) {
 
-//     if ((fabs(yError) < 0.03 && fabs(xError) < 0.03) && (fabs(turnError) < 1)) // && ((desiredValue != 0) || (desiredTurnValue != 0))
-//     {
-//       // resetEncoders = true;
-//       return; 
-//     }
+            intersectFound = 1;
+
+            // if both solutions are in range, check which one is better
+            if (((minX <= solPt1[0] && solPt1[0] <= maxX) && (minY <= solPt1[1] && solPt1[1] <= maxY)) && ((minX <= solPt2[0] && solPt2[0] <= maxX) && (minY <= sol_pt2[1] && sol_pt2[1] <= maxY))) {
+            // make the decision by compare the distance between the intersections and the next point in path
+            if (pt_to_pt_distance(solPt1[0], solPt1[1], path[i+1][0], path[i+1][1]) < pt_to_pt_distance(solPt2[0], solPt2[1],  path[i+1][0], path[i+1][1])) {
+                desiredX = solPt1[0];
+                desiredY = solPt1[1];
+            }
+            else {
+                desiredX = solPt2[0];
+                desiredY = solPt2[1];
+            }
+            }
+            // if not both solutions are in range, take the one that's in range
+            else {
+            // if solution pt1 is in range, set that as goal point
+            if ((minX <= solPt1[0] && solPt1[0] <= maxX) && (minY <= solPt1[1] && solPt1[1] <= maxY)) {
+                desiredX = solPt1[0];
+                desiredY = solPt1[1];
+            }
+            else {
+                desiredX = solPt2[0];
+                desiredY = solPt2[1];
+                }
+            }
+            // only exit loop if the solution pt found is closer to the next pt in path than the current pos
+            if (pt_to_pt_distance(desiredX, desiredY,  path[i+1][0], path[i+1][1]) < pt_to_pt_distance(globalX, globalY,  path[i+1][0], path[i+1][1])) {
+                // update lastFoundIndex and exit
+                lastFoundIndex = i;
+                break;
+            }
+            else {
+                // in case for some reason the robot cannot find intersection in the next path segment, but we also don't want it to go backward
+                lastFoundIndex = i+1;
+            }
+        }   
+        // if no solutions are in range
+        else {
+            intersectFound = 0;
+            // no new intersection found, potentially deviated from the path
+            // follow path[lastFoundIndex]
+            desiredX = path[lastFoundIndex][0];
+            desiredY = path[lastFoundIndex][1];
+        }
+        // if determinant < 0
+        }
+        else { 
+            intersectFound = 0;
+            // no new intersection found, potentially deviated from the path
+            // follow path[lastFoundIndex]
+            desiredX = path[lastFoundIndex][0];
+            desiredY = path[lastFoundIndex][1];
+        }
     
-//     Brain.Screen.clearScreen();
-//     Brain.Screen.setCursor(1, 1);
-//     Brain.Screen.print("Y Error: %f ", yError);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("X Error: %f ", xError);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Turn Error: %f ", turnError);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Desired X: %f ", desiredX);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Current X: %f ", globalX);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Desired Y: %f ", desiredY);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Current Y: %f ", globalY);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Desired Turn: %f ", desiredHeading);
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Inertial: %f", inertialSensor.rotation());
-//     Brain.Screen.newLine();
-//     Brain.Screen.print("Failsafe Timer: %d", timeout.time());
-//     Brain.Screen.newLine();
-//     // Don't hog cpu
-//     vex::task::sleep(20);
-//   }
-
-//   return;
-// }
-
-
-
-// xDriveError = desiredX - globalX;
-//   yDriveError = desiredY - globalY;
-//   // driveError = sqrt(pow((globalX - desiredX), 2) + pow((globalX - desiredX), 2));
-
-//   float inertialRadians = (inertialSensor.heading() - 45) * (M_PI/180);
-//   float temp = yDriveError * cos(inertialRadians) + xDriveError * sin(inertialRadians);
-//   xDriveError = yDriveError * sin(inertialRadians) + xDriveError * cos(inertialRadians);
-//   yDriveError = temp;
-
-//   ////////////////////
-//   // Y
-//   ////////////////////
-//   // Velocity -> Position -> Absement // Integral
-//   //Integral
-//   if(fabs(yDriveError) < driveIntegralBound){
-//   yDriveIntegral += yDriveError; 
-//   } else {
-//     yDriveIntegral = 0; 
-//   }
-//   //totalError += error;
-
-//   //reset integral if we pass the target
-//   if(yDriveError * yDrivePrevError < 0) {
-//     yDriveIntegral = 0;
-//   } 
-
-//   //only use integral if close enough to target
-
-//   yDriveDerivative = yDriveError - yDrivePrevError;
-
-//   yDrivePrevError = yDriveError;
-
-//   yDrivePowerPID = (yDriveError * drivekP + yDriveIntegral * drivekI + yDriveDerivative * drivekD);
-
-
-//   ////////////////////
-//   // X
-//   ////////////////////
-//   // Velocity -> Position -> Absement // Integral
-//   //Integral
-//   if(fabs(xDriveError) < driveIntegralBound){
-//   xDriveIntegral += xDriveError; 
-//   } else {
-//     xDriveIntegral = 0; 
-//   }
-//   //totalError += error;
-
-//   //reset integral if we pass the target
-//   if(xDriveError * xDrivePrevError < 0) {
-//     xDriveIntegral = 0;
-//   } 
-
-//   //only use integral if close enough to target
-
-//   xDriveDerivative = xDriveError - xDrivePrevError;
-
-//   xDrivePrevError = xDriveError;
-
-//   xDrivePowerPID = (xDriveError * drivekP + xDriveIntegral * drivekI + xDriveDerivative * drivekD);
-
-
-//   if(xDriveError * xDrivePrevError < 0) {
-//     xDriveIntegral = 0;
-//   } 
-
-//   //Limit power output to 12V
-//   if(xDrivePowerPID > 12) {
-//     xDrivePowerPID = 12;
-//   }
-
-//   if(fabs(xDriveError) < driveMaxError) {
-//     xDrivePowerPID = 0;
-//   }
-
-//   //Limit power output to 12V
-//   if(yDrivePowerPID > 12) {
-//     yDrivePowerPID = 12;
-//   }
-
-//   if(fabs(yDriveError) < driveMaxError) {
-//     yDrivePowerPID = 0;
-//   }
+    //   # apply proportional controller
+    *lastINDEX = lastFoundIndex;
+    if (startingIndex == sizeof(*path)) {
+        if (fabs(dx) < 1 && fabs(dy) < 1) {
+            lastFoundIndex = i+1;
+        }  
+    }
+    task::sleep(200);
+  }
+}
