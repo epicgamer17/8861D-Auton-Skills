@@ -98,6 +98,20 @@ void driveTo(float dX, float dY, float dH, float timeoutTime = 2500, float mSpee
   maxSpeed = mSpeed;
 }
 
+void driveToAndTurnToPoint(float dX, float dY, float timeoutTime = 2500, float mSpeed = 1.0) {  // COULD TRY PID WITH VOLTAGE INSTEAD
+  desiredX = dX;
+  desiredY = dY;
+  desiredHeading = atan2(dY - globalY, dX - globalX);
+
+  if (desiredHeading < 0) {
+    desiredHeading = 2 * M_PI - fabs(desiredHeading);
+  }
+  enablePID = true;
+  timeoutLength = timeoutTime;
+  Brain.resetTimer();
+  maxSpeed = mSpeed;
+}
+
 void turnTo(float dH, float timeoutTime = 2500) {
   desiredHeading = dH;
   desiredX = globalX; 
@@ -315,147 +329,4 @@ int PIDTask() {
   }
 
   return 1;
-}
-
-////////////////////////////
-/// Pure Pursuit 
-////////////////////////////
-
-int lastFoundIndex = 0;
-float lookAheadDis = 0.8;
-float linearVel = 100;
-
-// set this to true if you use rotations
-bool using_rotation = false;
-
-// this determines how long (how many frames) the animation will run. 400 frames takes around 30 seconds.
-int numOfFrames = 400;
-
-float goalPt[] = {0, 0};
-
-float pt_to_pt_distance (float x1, float y1, float x2, float y2) {
-    float dist = sqrt(( pow((x2 - x1),2) + pow((y2 - y1),2)));
-    return dist;
-  }
-
-// returns -1 if num is negative, 1 otherwise
-int sgn (float num) {
-  if (num >= 0)
-    return 1;
-  else
-    return -1;
-  }
-
-void pure_pursuit_step (float path[][2], float currentHeading, float lookAheadDis, int LFindex, int* lastINDEX){
-    // use for loop to search intersections
-    int lastFoundIndex = LFindex;
-    bool intersectFound;
-    int startingIndex = lastFoundIndex;
-
-    for (int i = startingIndex; i < (sizeof(*path)); i++) {
-        // beginning of line-circle intersection code
-        float x1 = path[i][0] - globalX;
-        float y1 = path[i][1] - globalY;
-        float x2 = path[i+1][0] - globalX;
-        float y2 = path[i+1][1] - globalY;
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float dr = sqrt(pow(dx,2) + pow(dy,2));
-        float D = x1*y2 - x2*y1;
-        float discriminant = (pow(lookAheadDis,2)) * (pow(dr,2)) - pow(D,2);
-        float solX1;
-        float solX2;
-        float solY1;
-        float solY2;
-        float solPt1[2];
-        float solPt2[2];
-        float minX;
-        float minY;
-        float maxX;
-        float maxY;
-
-        if (discriminant >= 0) {
-            solX1 = (D * dy + sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
-            solX2 = (D * dy - sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
-            solY1 = (- D * dx + fabs(dy) * sqrt(discriminant)) / pow(dr,2);
-            solY2 = (- D * dx - fabs(dy) * sqrt(discriminant)) / pow(dr,2);
-
-            solPt1[0] = {solX1 + globalX};
-            solPt2[0] = {solX2 + globalX};
-            solPt1[1] = {solY1 + globalY};
-            solPt2[1] = {solY2 + globalY};
-            // end of line-circle intersection code
-
-            minX = fmin(path[i][0], path[i+1][0]);
-            minY = fmin(path[i][1], path[i+1][1]);
-            maxX = fmax(path[i][0], path[i+1][0]);
-            maxY = fmax(path[i][1], path[i+1][1]);
-
-        // if one or both of the solutions are in range
-        if (((minX <= solPt1[0] <= maxX) && (minY <= solPt1[1] <= maxY)) || ((minX <= solPt2[0] <= maxX) && (minY <= solPt2[1] <= maxY))) {
-
-            intersectFound = 1;
-
-            // if both solutions are in range, check which one is better
-            if (((minX <= solPt1[0] && solPt1[0] <= maxX) && (minY <= solPt1[1] && solPt1[1] <= maxY)) && ((minX <= solPt2[0] && solPt2[0] <= maxX) && (minY <= sol_pt2[1] && sol_pt2[1] <= maxY))) {
-            // make the decision by compare the distance between the intersections and the next point in path
-            if (pt_to_pt_distance(solPt1[0], solPt1[1], path[i+1][0], path[i+1][1]) < pt_to_pt_distance(solPt2[0], solPt2[1],  path[i+1][0], path[i+1][1])) {
-                desiredX = solPt1[0];
-                desiredY = solPt1[1];
-            }
-            else {
-                desiredX = solPt2[0];
-                desiredY = solPt2[1];
-            }
-            }
-            // if not both solutions are in range, take the one that's in range
-            else {
-            // if solution pt1 is in range, set that as goal point
-            if ((minX <= solPt1[0] && solPt1[0] <= maxX) && (minY <= solPt1[1] && solPt1[1] <= maxY)) {
-                desiredX = solPt1[0];
-                desiredY = solPt1[1];
-            }
-            else {
-                desiredX = solPt2[0];
-                desiredY = solPt2[1];
-                }
-            }
-            // only exit loop if the solution pt found is closer to the next pt in path than the current pos
-            if (pt_to_pt_distance(desiredX, desiredY,  path[i+1][0], path[i+1][1]) < pt_to_pt_distance(globalX, globalY,  path[i+1][0], path[i+1][1])) {
-                // update lastFoundIndex and exit
-                lastFoundIndex = i;
-                break;
-            }
-            else {
-                // in case for some reason the robot cannot find intersection in the next path segment, but we also don't want it to go backward
-                lastFoundIndex = i+1;
-            }
-        }   
-        // if no solutions are in range
-        else {
-            intersectFound = 0;
-            // no new intersection found, potentially deviated from the path
-            // follow path[lastFoundIndex]
-            desiredX = path[lastFoundIndex][0];
-            desiredY = path[lastFoundIndex][1];
-        }
-        // if determinant < 0
-        }
-        else { 
-            intersectFound = 0;
-            // no new intersection found, potentially deviated from the path
-            // follow path[lastFoundIndex]
-            desiredX = path[lastFoundIndex][0];
-            desiredY = path[lastFoundIndex][1];
-        }
-    
-    //   # apply proportional controller
-    *lastINDEX = lastFoundIndex;
-    if (startingIndex == sizeof(*path)) {
-        if (fabs(dx) < 1 && fabs(dy) < 1) {
-            lastFoundIndex = i+1;
-        }  
-    }
-    task::sleep(200);
-  }
 }

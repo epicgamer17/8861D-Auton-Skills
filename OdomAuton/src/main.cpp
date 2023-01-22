@@ -3,6 +3,10 @@
 #include "vex.h"
 #include "PID.h"
 #include "draw-field.h"
+#include "PPS.h"
+#include "intake.h"
+#include "flywheel.h"
+
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
@@ -19,6 +23,7 @@
 // inertialSensor       inertial      11              
 // sidewaysRotation     rotation      18              
 // forwardRotation      rotation      19              
+// opticalSensor        optical       16              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // Robot configuration code.
 #pragma endregion VEXcode Generated Robot Configuration
@@ -29,75 +34,17 @@ competition Competition;
 
 #pragma region Variables
 // Variables 
-int flyWheelSpeed = 10; // 80 for pct, i am using 10 for voltage 
 float j = 0.0125/360; //Turning correction constant i think im not sure ask friend  
 float tileLength = 0.4572; //  0.6096
 float wheelRadius = 0.041275;
 
 bool stopIntake = true;
-bool intakeOn = false;
-bool flyWheelOn = false;
+
 bool fieldOriented = false;
 
 // #pragma endregion Odometry
 #pragma endregion Variables
 
-//Pasted from a C++ resource
-double signnum_c(double x) {
-  if (x > 0.0) return 1.0;
-  if (x < 0.0) return -1.0;
-  return x;
-}
-
-//Index Function
-void index() {
-  indexer.startSpinFor(1, rev, 100, velocityUnits::pct);
-}
-
-void increaseFlyWheelSpeed() {
-  if (flyWheelSpeed < 12) {  // < 100 for pct
-    flyWheelSpeed += 1;
-  }
-}
-
-void decreaseFlyWheelSpeed() {
-  if (flyWheelSpeed > 0) {
-    flyWheelSpeed -= 1;
-  }
-}
-
-void rollerSingleRotation() {
-  intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-}
-
-void toggleIntake() {
-  if (intakeOn == false) {
-    intake.spin(directionType::rev, 100, velocityUnits::pct);
-    intakeOn = true;
-  } else if (intakeOn == true) {
-    intake.stop();
-    intakeOn = false;
-  }
-}
-
-void toggleFlyWheel() {
-  if (flyWheelOn == false) {
-    flyWheel1.spin(directionType::fwd, -flyWheelSpeed * 50, velocityUnits::rpm);
-    flyWheel2.spin(directionType::fwd, -flyWheelSpeed * 50, velocityUnits::rpm);
-    // flyWheel1.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
-    // flyWheel2.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
-    flyWheelOn = true;
-  } else if (flyWheelOn == true) {
-    flyWheel1.stop();
-    flyWheel2.stop();
-    flyWheelOn = false;
-  }
-}
-
-void turnroller() {
-  // PI/DFunc(-0.05, 0, 0);
-  intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-}
 
 void expand() {
   expansion.set(true);
@@ -121,6 +68,8 @@ void pre_auton() {
   inertialSensor.startCalibration();
   sidewaysRotation.resetPosition();
   forwardRotation.resetPosition();
+
+  inertialSensor.setRotation(90, deg);
 
   indexer.setStopping(brakeType::coast);
   indexer.setTimeout(1, timeUnits::sec);
@@ -162,18 +111,33 @@ void autonomous(void) {
   task odometryTask(positionTracking);
   task drawFieldTask(drawField);
   task pidTask(PIDTask);
+  // task purePursuit(PPSTask);
+  // task intakeTask(intakeControl);
+  // task failSafeExpansion = vex::task(autonExpand);
 
-  turnTo(M_PI/2, 2500);
+  // turnTo(M_PI/2, 2500);
   waitUntil(enablePID == false);
-  driveTo(0, 0.6, 0, 5000, 2);
+  driveTo(0.6, 0, M_PI/2, 5000, 2);
   waitUntil(enablePID == false);
   driveTo(0.6, 0.6, 0, 5000, 2);
   waitUntil(enablePID == false);
-  driveTo(0, 0, 0, 5000, 2);
-  // task intakeTask(intakeControl);
-  
-  // task failSafeExpansion = vex::task(autonExpand);
-
+  driveTo(0, 0.6, 0, 5000, 2);
+  waitUntil(enablePID == false);
+  driveTo(0.2, 2.25, M_PI/2, 5000, 2);
+  waitUntil(enablePID == false);
+  driveTo(0.55, 2.3, M_PI, 5000, 2);
+  waitUntil(enablePID == false);
+  driveTo(1.35, 2.3, M_PI, 5000, 2);
+  waitUntil(enablePID == false);
+  turnToPoint(0.37, 3.23, 5000);
+  waitUntil(enablePID == false);
+  driveTo(2.8, 3.6, 3*M_PI/2, 5000, 2);
+  waitUntil(enablePID == false);
+  driveTo(3.6, 3, M_PI, 5000, 2);
+  waitUntil(enablePID == false);
+  driveTo(3, 3, 5*M_PI/4, 5000, 2);
+  waitUntil(enablePID == false);
+  expand();
   // resetEncoders = true;
   // PIDFunc(0, 0, 0); //desiredValue = dV, desiredTurnValue = dTV, movementDirection = mD;
   // PIDFunc(-0.05, 0, 0);
@@ -286,6 +250,9 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     Controller1.Screen.newLine();
     Controller1.Screen.print("----------------------");
 
+    // printf("\n Brightnesss %f", opticalSensor.brightness());
+    // printf("\n Hue %f", opticalSensor.hue());
+
 
     if (fieldOriented == true) {
       int turn = joystickAxis1;
@@ -329,11 +296,11 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     //   Brain.Screen.newLine();
     //   Brain.Screen.print("Inertial Heading: %f", inertialSensor.heading());
     //   Brain.Screen.newLine();
-    // } else {
-    //   backLeftSpeed = ((joystickAxis3 - joystickAxis4 + joystickAxis1));
-    //   frontLeftSpeed = ((joystickAxis3 + joystickAxis4 + joystickAxis1));
-    //   backRightSpeed = ((joystickAxis3 + joystickAxis4 - joystickAxis1));
-    //   frontRightSpeed = ((joystickAxis3 - joystickAxis4 - joystickAxis1));
+    } else {
+      backLeftSpeed = ((joystickAxis3 - joystickAxis4 + joystickAxis1));
+      frontLeftSpeed = ((joystickAxis3 + joystickAxis4 + joystickAxis1));
+      backRightSpeed = ((joystickAxis3 + joystickAxis4 - joystickAxis1));
+      frontRightSpeed = ((joystickAxis3 - joystickAxis4 - joystickAxis1));
     //   Brain.Screen.clearScreen();
     //   Brain.Screen.setCursor(1, 1);
     //   Brain.Screen.print("Front Left: %f", frontLeftSpeed);

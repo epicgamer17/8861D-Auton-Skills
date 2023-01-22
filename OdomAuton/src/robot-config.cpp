@@ -21,6 +21,7 @@ controller Controller1 = controller(primary);
 inertial inertialSensor = inertial(PORT11);
 rotation sidewaysRotation = rotation(PORT18, false);
 rotation forwardRotation = rotation(PORT19, true);
+optical opticalSensor = optical(PORT16);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

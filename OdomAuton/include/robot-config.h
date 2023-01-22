@@ -16,6 +16,7 @@ extern controller Controller1;
 extern inertial inertialSensor;
 extern rotation sidewaysRotation;
 extern rotation forwardRotation;
+extern optical opticalSensor;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

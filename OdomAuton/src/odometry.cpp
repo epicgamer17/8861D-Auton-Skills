@@ -13,8 +13,8 @@ float trackingWheelRadius = 0.034925;
 // bool fieldOriented = false;
 
 #pragma region Odometry
-float globalX = 0.0;
-float globalY = 0.0;
+float globalX = 0.65;
+float globalY = 0.05;
 
 float deltaGlobalX = 0;
 float deltaGlobalY = 0;
@@ -22,8 +22,8 @@ float deltaGlobalY = 0;
 float deltaLocalX = 0;
 float deltaLocalY = 0;
 
-float currentAbsoluteOrientation = 0;
-float prevTheta = 0;
+float currentAbsoluteOrientation = M_PI/2;
+float prevTheta = M_PI/2;
 float deltaTheta = 0;
 
 float avgThetaForArc = currentAbsoluteOrientation + (deltaTheta / 2);
