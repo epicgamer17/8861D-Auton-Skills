@@ -292,7 +292,7 @@ int PIDTask() {
       backLeft.spin(directionType::fwd, backLeftPower, voltageUnits::volt);
       backRight.spin(directionType::fwd, backRightPower, voltageUnits::volt);
    
-      if(fabs(driveError) < 0.1 && fabs(turnError) < 0.003) {
+      if(fabs(driveError) < 0.03 && fabs(turnError) < 0.003) {
         enablePID = false;
       }
 
