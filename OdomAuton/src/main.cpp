@@ -45,6 +45,36 @@ bool fieldOriented = false;
 // #pragma endregion Odometry
 #pragma endregion Variables
 
+void aimToHighGoal() {
+  turnToPoint(0.37, 3.25, 2500, false);
+  waitUntil(enablePID == false);
+}
+
+float ptToPtDistance (float x1, float y1, float x2, float y2) {
+    float dist = sqrt((pow((x2 - x1),2) + pow((y2 - y1),2)));
+    return dist;
+  }
+
+
+void goToNearestRoller() {
+  if (ptToPtDistance(globalX, globalY, 0.4425, 0.4425) < ptToPtDistance(globalX, globalY, 3.175, 3.175)) {  
+    if (ptToPtDistance(globalX, globalY, 0.15, 0.735) < ptToPtDistance(globalX, globalY, 0.735, 0.15)) {
+      driveTo(0.15, 0.735, 0, 2500, 2);
+      waitUntil(enablePID == false);
+    } else {
+      driveTo(0.735, 0.15, M_PI/2, 2500, 2);
+      waitUntil(enablePID == false);
+    }
+  } else {
+    if (ptToPtDistance(globalX, globalY, 2.9, 3.45) < ptToPtDistance(globalX, globalY, 3.45, 2.9)) {
+      driveTo(2.9, 3.45, 3*M_PI/2, 2500, 2);
+      waitUntil(enablePID == false);
+    } else {
+      driveTo(3.45, 2.9, M_PI, 2500, 2);
+      waitUntil(enablePID == false);
+    }
+  }
+}
 
 void expand() {
   expansion.set(true);
@@ -56,7 +86,7 @@ int autonExpand() {
   return 0;
 }
 
-void controlSwitch() {
+void toggleFieldOriented() {
   fieldOriented = !fieldOriented;
   inertialSensor.resetHeading();
 }
@@ -106,7 +136,6 @@ void pre_auton() {
   // task sPID = task(PID);
 }
 
-
 //Autonomuos 
 void autonomous(void) {  
 
@@ -143,7 +172,9 @@ void autonomous(void) {
   ////////// AUTON SKILLS//////////
   // turnTo(M_PI/2, 2500);
   // waitUntil(enablePID == false);
+  
 
+  ///CONSIDER USING DRIVE TO ROLLER FUNCTION FOR THIS
   driveTo(0.85, 0.15, M_PI/2, 2500, 2);
   waitUntil(enablePID == false);
   driveTo(0.85, 0.4, M_PI/2, 2500, 6);
@@ -190,8 +221,6 @@ void autonomous(void) {
   expand();
   driveTo(0.85, 0.35, M_PI/2, 10000, 2);
 }
-
-
 
 //User Control
 void usercontrol() { // Try also applying PID, also maybe PID on the flywheel?? 
@@ -296,19 +325,21 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   }
 }
 
-
-
 int main() {
   // Event Registration for Buttons
   Controller1.ButtonR1.pressed(index);
+  Controller1.ButtonL1.pressed(toggleIntake);
+  //R2 Unused
+  //L2 Used Above in User Control
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
-  Controller1.ButtonY.pressed(rollerBlue);
-  Controller1.ButtonL1.pressed(toggleIntake);
-  Controller1.ButtonA.pressed(toggleFlyWheel);
   Controller1.ButtonLeft.pressed(expand);
-  Controller1.ButtonB.pressed(controlSwitch);
-
+  //Button Right Unused
+  Controller1.ButtonA.pressed(toggleFlyWheel);
+  Controller1.ButtonB.pressed(toggleFieldOriented);
+  Controller1.ButtonY.pressed(rollerBlue);
+  Controller1.ButtonX.pressed(goToNearestRoller);
+  // Controller1.Button.pressed(aimToHighGoal);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
