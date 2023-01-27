@@ -7,8 +7,11 @@ bool intakeOn = false;
 //   intake.spinFor(reverse, 1, rev, 100, velocityUnits::pct, true);
 // }
 
-void rollerSingleRotation() {
-  intake.spinFor(reverse, 1, rev, 100, velocityUnits::pct, true);
+void rollerBlue() {
+  while (opticalSensor.color() != color::blue) {
+    intake.spin(reverse);
+  }
+  intake.stop();
 }
 
 void toggleIntake() {

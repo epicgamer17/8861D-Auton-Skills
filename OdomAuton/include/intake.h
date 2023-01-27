@@ -2,8 +2,6 @@
 
 extern bool intakeOn;
 
-extern void turnroller();
-
-extern void rollerSingleRotation();
+extern void rollerBlue();
 
 extern void toggleIntake();

@@ -1,27 +1,7 @@
 #include "flywheel.h"
 
 bool flyWheelOn = false;
-int flyWheelSpeed = 10; // 80 for pct, i am using 10 for voltage 
-
-#pragma region PID Varialbes
-// float desiredVoltage = 0;
-
-double flyWheelMaxError = 0.1;
-
-double flyWheelIntegralBound = 1.5;
-
-double flyWheelkP = 10;
-double flyWheelkI = 0.0;
-double flyWheelkD = 0.0;
-
-double flyWheelPowerPID = 0;
-
-float flyWheelError; //Desired Value - Sensor Value: Position
-float flyWheelPrevError = 0; //Position 20ms ago
-float flyWheelDerivative; // error - prevError : Speed
-float flyWheelIntegral = 0; // totalError += error : Integral 
-
-#pragma endregion PID Variables
+float flyWheelSpeed = 10; // 80 for pct, i am using 10 for voltage 
 
 //Index Function
 void index() {
@@ -29,88 +9,87 @@ void index() {
 }
 
 void increaseFlyWheelSpeed() {
-  if (flyWheelSpeed < 12) {  // < 100 for pct
-    flyWheelSpeed += 1;
+  if (flyWheelSpeed < 12) {  // < 100 for pct 12 for voltage 
+    flyWheelSpeed += 0.5;
   }
 }
 
 void decreaseFlyWheelSpeed() {
   if (flyWheelSpeed > 0) {
-    flyWheelSpeed -= 1;
+    flyWheelSpeed -= 0.5;
   }
 }
 
 
-void flyWheelPID() {
-  float avgVoltage = (flyWheel1.voltage() + flyWheel2.voltage())/2; //could add previous voltages too 
-  //Error is equal to the total distance away from the target (uses distance formula with current position and target location)
-  flyWheelError = flyWheelSpeed - avgVoltage;
-  
-  //only use integral if close enough to target
-  if(fabs(flyWheelError) < flyWheelIntegralBound) {
-    flyWheelIntegral += flyWheelError;
-  }
-  else {
-    flyWheelIntegral = 0;
-  }
+float kI = .025; //again, this is arbitrary
+float flyWheelPowerTBH = 0;
+// float deltaFlyWheelRPM = 0;
+float flyWheelError = 0;
+float prevFlyWheelError = 0;
+float flyWheelIntegral = 0;
+float TBH = 0;
+float flyWheelTime = 0;
+float prevFlyWheelRPM = 0;
+float prevFlyWheelTime = 0;
 
-  //reset integral if we pass the target
-  if(flyWheelError * flyWheelPrevError < 0) {
-    flyWheelIntegral = 0;
-  } 
 
-  flyWheelDerivative = flyWheelError - flyWheelPrevError;
-
-  flyWheelPrevError = flyWheelError;
-
-  flyWheelPowerPID = (flyWheelError * flyWheelkP + flyWheelIntegral * flyWheelkI + flyWheelDerivative * flyWheelkD);
-
-  //Limit power output to 12V
-  if(flyWheelPowerPID > flyWheelSpeed) { //if you change to rpm pid instead of voltage pid change this. I think right now I had to put this because it was setting the PID to 12 no matter what.
-    flyWheelPowerPID = flyWheelSpeed;
-  }
-
-  if(fabs(flyWheelError) < flyWheelMaxError) {
-    flyWheelPowerPID = 0;
-  }
+int sgn (float num) {
+  if (num >= 0)
+    return 1;
+  else
+    return -1;
 }
 
-int flyWheelPIDTask() {
+int TBHTask() {
+  timer flyWheelTimer = timer();
+  while (true) {
+    if (flyWheelOn == true) {
+      flyWheelTime = flyWheelTimer.time(msec);
+      // since rpm is already sort of deltaPosition we maybe can just use rpm instead of chage in degrees// deltaFlyWheelRPM = (flyWheel1.velocity(rpm) - prevFlyWheelRPM) / (flyWheelTime - prevFlyWheelTime);
+      flyWheelError = flyWheelSpeed - flyWheel1.velocity(rpm);
+      flyWheelIntegral += flyWheelError;
+      flyWheelPowerTBH = flyWheelIntegral * kI;
+      
+      prevFlyWheelTime = flyWheelTime;
 
-  //loop to constantly execute chassis commands
-  while(1) {
-    
-    if(flyWheelOn) {
-      //get PID values for driving and turning
-      flyWheelPID();
+      if(flyWheelPowerTBH > 12) {
+        flyWheelPowerTBH = 12;
+      }
+      else if(flyWheelPowerTBH < 0) {
+      //Keep the motor power positive, to prevent damaging gears or motors
+        flyWheelPowerTBH = 0;
+      }
+      
+      if(sgn(flyWheelError) != sgn(prevFlyWheelError)) {
+        //If the sign of the error changes, then the error crossed zero
+        TBH = (flyWheelPowerTBH + TBH) / 2;
+        flyWheelPowerTBH = TBH;
+        prevFlyWheelError = flyWheelError;
+        //the last error doesn't matter unless the sign is different, so the last error is only stored when necessary
+      }
 
-      //set power for each motor
-      flyWheel1.spin(reverse, ((flyWheelPowerPID)), voltageUnits::volt);
-      flyWheel2.spin(reverse, ((flyWheelPowerPID)), voltageUnits::volt);
+      flyWheel1.spin(directionType::fwd, -flyWheelPowerTBH, voltageUnits::volt);
+      flyWheel2.spin(directionType::fwd, -flyWheelPowerTBH, voltageUnits::volt);
 
+      task::sleep(20);
     }
-    //What to do when not using the chassis controls
-    else {
-      flyWheel1.stop(brakeType::coast);
-      flyWheel2.stop(brakeType::coast);
+    else
+    {
+      flyWheel1.stop(coast);
+      flyWheel2.stop(coast);
     }
-
   }
-
-  return 1;
 }
 
 void toggleFlyWheel() {
   if (flyWheelOn == false) {
     // flyWheel1.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
     // flyWheel2.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
-    printf("%d", flyWheelOn);
     flyWheelOn = true;
   } else if (flyWheelOn == true) {
-    // flyWheel1.stop();
-    // flyWheel2.stop();
+    // flyWheel1.stop(coast);
+    // flyWheel2.stop(coast);
     flyWheelOn = false;
-    printf("%d", flyWheelOn);
   }
 }
 

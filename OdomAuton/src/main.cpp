@@ -127,7 +127,7 @@ void autonomous(void) {
   // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
   task failSafeExpansion = vex::task(autonExpand);
-  task flyWheelTask(flyWheelPIDTask);
+  // task flyWheelTask(flyWheelPIDTask);
   // while (inertialSensor.rotation() < 1800) {
   //   frontLeft.spin(fwd);
   //   frontRight.spin(reverse);
@@ -172,7 +172,6 @@ void autonomous(void) {
   driveTo(1.35, 2.3, M_PI, 2500, 2);
   waitUntil(enablePID == false);
   turnToPoint(0.37, 3.25, 2500, false);
-  // turnToPoint(0, 0, 2500);
   wait(1.5, sec); // dont know why for some reason it only works if this wait is here. 
   waitUntil(enablePID == false);
   index();
@@ -190,91 +189,6 @@ void autonomous(void) {
   waitUntil(enablePID == false);
   expand();
   driveTo(0.85, 0.35, M_PI/2, 10000, 2);
-
-///END OF AUTON COMP BELOW IS OLD AUTON
-
-  // resetEncoders = true;
-  // PIDFunc(0, 0, 0); //desiredValue = dV, desiredTurnValue = dTV, movementDirection = mD;
-  // PIDFunc(-0.05, 0, 0);
-  // intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-  // PIDFunc(0.2286, 0, 0);
-  // PIDFunc(0, 90, 0);
-  // intake.spin(fwd, 100, velocityUnits::pct);
-  // PIDFunc(-0.25146, 0, 0);
-  // intake.stop();
-  // PIDFunc(-0.09144, 0, 0);
-  // intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-  // PIDFunc(0.88298, 0, 0);
-  // PIDFunc(0.3, 0, 90);
-  // PIDFunc(0.3, 0, 0);
-  // PIDFunc(0, -10, 0);
-  // PIDFunc(0,0,0);
-  // enablePID = false;
-  // // flyWheel1.spin(directionType::fwd, -12, voltageUnits::volt);
-  // // flyWheel2.spin(directionType::fwd, -12, voltageUnits::volt);
-  // flyWheel1.spin(directionType::fwd, -100, velocityUnits::pct);
-  // flyWheel2.spin(directionType::fwd, -100, velocityUnits::pct);
-
-  // for (int i = 0; i < 3; i ++) {
-  //   timer flyWheelTimeout = timer();
-  //   while ((flyWheel1.velocity(rpm) + flyWheel1.velocity(rpm)/2) < 597 && flyWheelTimeout.time() < 3000) {
-  //     Brain.Screen.clearScreen();
-  //     Brain.Screen.setCursor(1, 1);
-  //     Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
-  //     Brain.Screen.newLine();
-  //     Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel2.velocity(rpm));
-  //     Brain.Screen.newLine();
-  //     Brain.Screen.print("Fly Wheel Timeout: %d", flyWheelTimeout.time());
-  //     Brain.Screen.newLine();
-  //    wait(10, msec);
-  //   }
-  //   index();
-  // }
-  // wait(0.5, sec);
-  // flyWheel1.stop();
-  // flyWheel2.stop();
-  // enablePID = true;
-  // PIDFunc(0, 0, 0);
-  // PIDFunc(0, 10, 0);
-  // PIDFunc(-0.3, 0, 0);
-  // PIDFunc(-0.3, 0, 90);
-  // PIDFunc(0, 90, 0);
-  
-  // // PIDFunc(0, 20, 0);
-  // // PIDFunc(0,0,0);
-  // // enablePID = false;
-  // // flyWheel1.spin(directionType::fwd, -12, voltageUnits::volt);
-  // // flyWheel2.spin(directionType::fwd, -12, voltageUnits::volt);
-  // // wait(1, sec);
-  // // index();
-  // // wait(1,sec);
-  // // index();
-  // // wait(1,sec);
-  // // index();
-  // // wait(1, sec);
-  // // flyWheel1.stop();
-  // // flyWheel2.stop();
-  // // enablePID = true;
-  // // PIDFunc(0, 0, 0);
-  // // PIDFunc(0, 70, 0);
-
-  // intake.spin(fwd, 100, velocityUnits::pct);
-  // PIDFunc(-0.9144, 0, 0);
-  // intake.stop();
-  // PIDFunc(-0.2286, 0, 0);
-  // PIDFunc(0, 90, 0);
-  // intake.spin(fwd, 100, velocityUnits::pct);
-  // PIDFunc(-0.6858, 0, 0);
-  // intake.stop();
-  // PIDFunc(-0.1143, 0, 0);
-  // intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-  // PIDFunc(0.2286, 0, 0);
-  // PIDFunc(0, -90, 0);
-  // PIDFunc(-0.6858, 0, 0);
-  // intake.spinFor(fwd, 1, rev, 100, velocityUnits::pct, true);
-  // PIDFunc(-0.2286, 0, 0);
-  // PIDFunc(0, 45, 0);
-  // expand();
 }
 
 
@@ -286,22 +200,22 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   float frontLeftSpeed = 0;
   float backRightSpeed = 0;
   float frontRightSpeed = 0;
-  task flyWheelTask(flyWheelPIDTask);
+  // task flyWheelTask(flyWheelPIDTask);
 
   while (true) {
     int joystickAxis3 = Controller1.Axis3.value();
     int joystickAxis4 = Controller1.Axis4.value();
     int joystickAxis1 = Controller1.Axis1.value();
-    
-    joystickAxis3 = abs(joystickAxis3) < 15 ? 0 : joystickAxis3;
-    joystickAxis4 = abs(joystickAxis4) < 15 ? 0 : joystickAxis4;
-    joystickAxis1 = abs(joystickAxis1) < 15 ? 0 : joystickAxis1;
+  
+    joystickAxis3 = abs(joystickAxis3) < 10 ? 0 : joystickAxis3;
+    joystickAxis4 = abs(joystickAxis4) < 10 ? 0 : joystickAxis4;
+    joystickAxis1 = abs(joystickAxis1) < 10 ? 0 : joystickAxis1;
 
     // Controller1.Screen.clearScreen();
     // Controller1.Screen.setCursor(1,1);
-    // Controller1.Screen.print("Field Oriented: %s", fieldOriented ? "true" : "false");
+    // Controller1.Screen.print("Field Oriented: %s", fieldOriented ? "on" : "off");
     // Controller1.Screen.newLine();
-    // Controller1.Screen.print("Fly Wheel Speed: %d", flyWheelSpeed);
+    // Controller1.Screen.print("Fly Wheel Speed: %f", flyWheelSpeed);
     // Controller1.Screen.newLine();
     // Controller1.Screen.print("----------------------");
 
@@ -312,14 +226,28 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     // Brain.Screen.setCursor(1, 1);
     // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
     // Brain.Screen.newLine();
-    // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel2.velocity(rpm));
+    // Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
     // Brain.Screen.newLine();
+    //   Brain.Screen.print("Joystick Axis 3: %d ", joystickAxis3);
+    //   Brain.Screen.newLine();
+    //   Brain.Screen.print("Joystick Axis 4: %d ", joystickAxis4);
+    //   Brain.Screen.newLine();
+    //   Brain.Screen.print("Joystick Axis 1: %d ", joystickAxis1);
+    //   Brain.Screen.newLine();
+    //   Brain.Screen.print("Front Left: %f", frontLeftSpeed);
+    //   Brain.Screen.newLine();
+    //   Brain.Screen.print("Front Right: %f", frontRightSpeed);
+    //   Brain.Screen.newLine();    
+    //   Brain.Screen.print("Back Left: %f", backLeftSpeed);
+    //   Brain.Screen.newLine();    
+    //   Brain.Screen.print("Back Right: %f", backRightSpeed);
+    //   Brain.Screen.newLine();
 
     if (fieldOriented == true) {
       int turn = joystickAxis1;
       int x = joystickAxis4;
       int y = joystickAxis3;
-      float inertialRadians = (inertialSensor.heading() - 45) * (M_PI/180);
+      float inertialRadians = (inertialSensor.heading() - 45) * (M_PI/180) + M_PI/2; // + M_PI/2 Because odom has orientation as M_PI/2
       float temp = y * cos(inertialRadians) + x * sin(inertialRadians);
       x = - y * sin(inertialRadians) + x * cos(inertialRadians);
       y = temp;
@@ -329,25 +257,11 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
       backRightSpeed = (x - turn);
       frontRightSpeed = (y - turn);
 
-    //   Brain.Screen.print("Front Left: %f", frontLeftSpeed);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Front Right: %f", frontRightSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Left: %f", backLeftSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Right: %f", backRightSpeed);
-    //   Brain.Screen.newLine();
     //   Brain.Screen.print("Y: %d ", y);
     //   Brain.Screen.newLine();
     //   Brain.Screen.print("X: %d ", x);
     //   Brain.Screen.newLine();
     //   Brain.Screen.print("Turn: %d ", turn);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 3: %d ", joystickAxis3);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 4: %d ", joystickAxis4);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 1: %d ", joystickAxis1);
     //   Brain.Screen.newLine();
     //   Brain.Screen.print("Inertial Heading: %f", inertialSensor.heading());
     //   Brain.Screen.newLine();
@@ -355,27 +269,7 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
       backLeftSpeed = ((joystickAxis3 - joystickAxis4 + joystickAxis1));
       frontLeftSpeed = ((joystickAxis3 + joystickAxis4 + joystickAxis1));
       backRightSpeed = ((joystickAxis3 + joystickAxis4 - joystickAxis1));
-      frontRightSpeed = ((joystickAxis3 - joystickAxis4 - joystickAxis1));
-    //   Brain.Screen.clearScreen();
-    //   Brain.Screen.setCursor(1, 1);
-    //   Brain.Screen.print("Front Left: %f", frontLeftSpeed);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Front Right: %f", frontRightSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Left: %f", backLeftSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Right: %f", backRightSpeed);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel2.velocity(rpm));
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 3: %d ", joystickAxis3);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 4: %d ", joystickAxis4);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 1: %d ", joystickAxis1);
-    //   Brain.Screen.newLine();
+      frontRightSpeed = ((joystickAxis3 - joystickAxis4 - joystickAxis1)); 
     //   Brain.Screen.print("Inertial Heading: %f", inertialSensor.heading());
     //   Brain.Screen.newLine();
     }
@@ -409,7 +303,7 @@ int main() {
   Controller1.ButtonR1.pressed(index);
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
-  Controller1.ButtonY.pressed(rollerSingleRotation);
+  Controller1.ButtonY.pressed(rollerBlue);
   Controller1.ButtonL1.pressed(toggleIntake);
   Controller1.ButtonA.pressed(toggleFlyWheel);
   Controller1.ButtonLeft.pressed(expand);
