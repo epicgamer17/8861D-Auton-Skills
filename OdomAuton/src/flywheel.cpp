@@ -66,8 +66,8 @@ void flyWheelPID() {
   flyWheelPowerPID = (flyWheelError * flyWheelkP + flyWheelIntegral * flyWheelkI + flyWheelDerivative * flyWheelkD);
 
   //Limit power output to 12V
-  if(flyWheelPowerPID > 12) {
-    flyWheelPowerPID = 12;
+  if(flyWheelPowerPID > flyWheelSpeed) { //if you change to rpm pid instead of voltage pid change this. I think right now I had to put this because it was setting the PID to 12 no matter what.
+    flyWheelPowerPID = flyWheelSpeed;
   }
 
   if(fabs(flyWheelError) < flyWheelMaxError) {
@@ -102,7 +102,6 @@ int flyWheelPIDTask() {
 
 void toggleFlyWheel() {
   if (flyWheelOn == false) {
-    flyWheelSpeed = 12;
     // flyWheel1.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
     // flyWheel2.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
     printf("%d", flyWheelOn);

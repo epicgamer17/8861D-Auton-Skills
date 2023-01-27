@@ -13,7 +13,7 @@ extern void driveToAndTurnToPoint(float dX, float dY, float timeoutTime, float m
 
 extern void turnTo(float dH, float timeoutTime);
 
-extern void turnToPoint(float dX, float dY, float timeoutTime);
+extern void turnToPoint(float dX, float dY, float timeoutTime, bool inverted);
 
 void setDrivePower(float theta);
 

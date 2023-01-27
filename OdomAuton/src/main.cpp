@@ -88,8 +88,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  // inertialSensor.setRotation(-90, deg);
-  // inertialSensor.setHeading(-90, deg);
+  inertialSensor.setRotation(-90, deg);
+  inertialSensor.setHeading(-90, deg);
 
   Brain.Screen.setCursor(3, 4);
   Brain.Screen.print("CALIBRATED!");
@@ -122,42 +122,74 @@ void autonomous(void) {
 
   //start the odometry
   task odometryTask(positionTracking);
-  task drawFieldTask(drawField);
+  task drawFieldTask(drawField); // uncomment after testing turning
   task pidTask(PIDTask);
-  task purePursuit(PPSTask);
+  // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
   task failSafeExpansion = vex::task(autonExpand);
-  
-  // driveTo(0.6, 0, M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0.6, 0.6, M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0, 0, M_PI/2, 5000, 2);
+  task flyWheelTask(flyWheelPIDTask);
+  // while (inertialSensor.rotation() < 1800) {
+  //   frontLeft.spin(fwd);
+  //   frontRight.spin(reverse);
+  //   backLeft.spin(fwd);
+  //   backRight.spin(reverse);
+  // }
 
+  // frontLeft.stop();
+  // frontRight.stop();
+  // backLeft.stop();
+  // backRight.stop();
+  
   ////////// AUTON SKILLS//////////
   // turnTo(M_PI/2, 2500);
   // waitUntil(enablePID == false);
-  // driveTo(0.6, 0, M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0.6, 0.6, M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0, 0.6, 0, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0.2, 2.25, M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(0.55, 2.3, M_PI, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(1.35, 2.3, M_PI, 5000, 2);
-  // waitUntil(enablePID == false);
-  // turnToPoint(0.37, 3.23, 5000);
-  // waitUntil(enablePID == false);
-  // driveTo(2.8, 3.6, 3*M_PI/2, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(3.6, 3, M_PI, 5000, 2);
-  // waitUntil(enablePID == false);
-  // driveTo(3, 3, 5*M_PI/4, 5000, 2);
-  // waitUntil(enablePID == false);
-  // expand();
+
+  driveTo(0.85, 0.15, M_PI/2, 2500, 2);
+  waitUntil(enablePID == false);
+  driveTo(0.85, 0.4, M_PI/2, 2500, 6);
+  waitUntil(enablePID == false);
+  toggleIntake();
+  driveTo(0.6, 0.6, currentAbsoluteOrientation, 2500, 2); 
+  turnToPoint(0.6, 0.6, 2500, true);
+  waitUntil(enablePID == false);
+  toggleIntake();
+  driveTo(0.15, 0.85, 0, 2500, 2);
+  waitUntil(enablePID == false);
+  flyWheelSpeed = 9;
+  toggleFlyWheel();
+  driveTo(0.2, 2.25, 7*M_PI/16, 2500, 2);
+  waitUntil(enablePID == false);
+  index();
+  wait(1000, msec);
+  index();
+  wait(1000, msec);
+  index();
+  wait(1000, msec);
+  toggleFlyWheel();
+  driveTo(0.2, 2.2, M_PI, 2500, 2);
+  waitUntil(enablePID == false);
+  toggleFlyWheel();
+  driveTo(1.35, 2.3, M_PI, 2500, 2);
+  waitUntil(enablePID == false);
+  turnToPoint(0.37, 3.25, 2500, false);
+  // turnToPoint(0, 0, 2500);
+  wait(1.5, sec); // dont know why for some reason it only works if this wait is here. 
+  waitUntil(enablePID == false);
+  index();
+  wait(1000, msec);
+  index();
+  wait(1000, msec);
+  index();
+  wait(1000, msec);
+  toggleFlyWheel();
+  driveTo(2.75, 3.45, 3*M_PI/2, 5000, 1);
+  waitUntil(enablePID == false);
+  driveTo(3.45, 2.75, M_PI, 2500, 2);
+  waitUntil(enablePID == false);
+  driveTo(3, 3, 5*M_PI/4, 2500, 10);
+  waitUntil(enablePID == false);
+  expand();
+  driveTo(0.85, 0.35, M_PI/2, 10000, 2);
 
 ///END OF AUTON COMP BELOW IS OLD AUTON
 
@@ -265,23 +297,23 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     joystickAxis4 = abs(joystickAxis4) < 15 ? 0 : joystickAxis4;
     joystickAxis1 = abs(joystickAxis1) < 15 ? 0 : joystickAxis1;
 
-    Controller1.Screen.clearScreen();
-    Controller1.Screen.setCursor(1,1);
-    Controller1.Screen.print("Field Oriented: %s", fieldOriented ? "true" : "false");
-    Controller1.Screen.newLine();
-    Controller1.Screen.print("Fly Wheel Speed: %d", flyWheelSpeed);
-    Controller1.Screen.newLine();
-    Controller1.Screen.print("----------------------");
+    // Controller1.Screen.clearScreen();
+    // Controller1.Screen.setCursor(1,1);
+    // Controller1.Screen.print("Field Oriented: %s", fieldOriented ? "true" : "false");
+    // Controller1.Screen.newLine();
+    // Controller1.Screen.print("Fly Wheel Speed: %d", flyWheelSpeed);
+    // Controller1.Screen.newLine();
+    // Controller1.Screen.print("----------------------");
 
     // printf("\n Brightnesss %f", opticalSensor.brightness());
     // printf("\n Hue %f", opticalSensor.hue());
     
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
-    Brain.Screen.newLine();
-    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel2.velocity(rpm));
-    Brain.Screen.newLine();
+    // Brain.Screen.clearScreen();
+    // Brain.Screen.setCursor(1, 1);
+    // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
+    // Brain.Screen.newLine();
+    // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel2.velocity(rpm));
+    // Brain.Screen.newLine();
 
     if (fieldOriented == true) {
       int turn = joystickAxis1;
@@ -355,7 +387,7 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
 
     if (Controller1.ButtonL2.pressing()) 
     {
-      intake.spin(directionType::fwd, 100, velocityUnits::pct);    
+      intake.spin(reverse, 100, velocityUnits::pct);    
       intakeOn = false;
     }
     else 

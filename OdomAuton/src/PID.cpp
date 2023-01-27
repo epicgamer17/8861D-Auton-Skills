@@ -26,32 +26,37 @@ float drivePowerFRBL = 0;
 double turnError = 0;
 double turnPrevError = 0;
 
-double turnMaxError = 0.01;
+double turnMinError = 0.01;
 
 double turnIntegral = 0;
 double turnIntegralBound = 0.09;
 
 double turnDerivative = 0;
 
-double turnkP = 13.00;
-double turnkI = 1.00;
-double turnkD = 10.00;
+double turnkP = 10;
+double turnkI = 0.00;
+double turnkD = 0.00;
+
+// double turnkP = 13.00;
+// double turnkI = 1.00;
+// double turnkD = 10.00;
+
 
 double turnPowerPID = 0;
 
 // double driveError = 0;
 // double drivePrevError = 0;
 
-double driveMaxError = 0.1;
+double driveMinError = 0.01;
 
 // double driveIntegral = 0;
 double driveIntegralBound = 1.5;
 
 // double driveDerivative = 0;
 
-double drivekP = 1.5;
-double drivekI = 0.02;
-double drivekD = 10.0;
+double drivekP = 10;
+double drivekI = 0.0;
+double drivekD = 0.0;
 
 double drivePowerPID = 0;
 
@@ -116,21 +121,29 @@ void turnTo(float dH, float timeoutTime = 2500) {
   desiredHeading = dH;
   desiredX = globalX; 
   desiredY = globalY;
+  enablePID = true;
 
   timeoutLength = timeoutTime;
 
   Brain.resetTimer();
 }
 
-void turnToPoint(float dX, float dY, float timeoutTime = 2500) {
+void turnToPoint(float dX, float dY, float timeoutTime = 2500, bool inverted = false) {
   desiredHeading = atan2(dY - globalY, dX - globalX);
+
+  if (inverted == true) {
+    desiredHeading = desiredHeading - M_PI;
+  }
 
   if (desiredHeading < 0) {
     desiredHeading = 2 * M_PI - fabs(desiredHeading);
   }
 
+
   desiredX = globalX; 
   desiredY = globalY;
+  
+  enablePID = true;
 
   timeoutLength = timeoutTime;
 
@@ -182,7 +195,7 @@ void drivePID() {
     drivePowerPID = 12;
   }
 
-  if(fabs(driveError) < driveMaxError) {
+  if(fabs(driveError) < driveMinError) {
     drivePowerPID = 0;
   }
 
@@ -221,7 +234,7 @@ void turnPID() {
     turnPowerPID = 12;
   }
 
-  if(fabs(turnError) < turnMaxError) {
+  if(fabs(turnError) < turnMinError) {
     turnPowerPID = 0;
   }
 }
