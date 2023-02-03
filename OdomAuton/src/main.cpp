@@ -25,6 +25,7 @@
 // forwardRotation      rotation      19              
 // opticalSensor        optical       16              
 // visionSensor         vision        20              
+// Controller2          controller                    
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // Robot configuration code.
 #pragma endregion VEXcode Generated Robot Configuration
@@ -147,48 +148,7 @@ void pre_auton() {
   // task sPID = task(PID);
 }
 
-//Autonomuos 
-void autonomous(void) {  
-
-  //reset rotation sensors
-  forwardRotation.resetPosition();
-  sidewaysRotation.resetPosition();
-
-  frontLeft.resetRotation();
-  frontRight.resetRotation();
-  backLeft.resetRotation();
-  backRight.resetRotation();
-  
-  // visionPickUpDisc();
-
-  //start the odometry
-  task odometryTask(positionTracking);
-  task drawFieldTask(drawField); // uncomment after testing turning
-  task pidTask(PIDTask);
-  // task purePursuit(PPSTask);
-  // task intakeTask(intakeControl);
-  task failSafeExpansion(autonExpand);
-  // task flyWheelTask(flyWheelPIDTask);
-
-  // visionPickUpDisc();
-
-
-  // while (inertialSensor.rotation() < 1800) {
-  //   frontLeft.spin(fwd);
-  //   frontRight.spin(reverse);
-  //   backLeft.spin(fwd);
-  //   backRight.spin(reverse);
-  // }
-
-  // frontLeft.stop();
-  // frontRight.stop();
-  // backLeft.stop();
-  // backRight.stop();
-  
-  ////////// AUTON SKILLS//////////
-  // turnTo(M_PI/2, 2500);
-  // waitUntil(enablePID == false);
-  
+void autonSkillsV1() {
 
   ///CONSIDER USING DRIVE TO ROLLER FUNCTION FOR THIS
   driveTo(0.65, 0.3, M_PI/2, 2500, 1); //0.65 instead of 0.75 s that the optical sensor sees the roller
@@ -336,6 +296,87 @@ void autonomous(void) {
   enablePID = false;
 }
 
+//Autonomuos 
+void autonomous(void) {  
+
+  //reset rotation sensors
+  forwardRotation.resetPosition();
+  sidewaysRotation.resetPosition();
+
+  frontLeft.resetRotation();
+  frontRight.resetRotation();
+  backLeft.resetRotation();
+  backRight.resetRotation();
+  
+  // visionPickUpDisc();
+
+  //start the odometry
+  task odometryTask(positionTracking);
+  task drawFieldTask(drawField); // uncomment after testing turning
+  task pidTask(PIDTask);
+  // task purePursuit(PPSTask);
+  // task intakeTask(intakeControl);
+  task failSafeExpansion(autonExpand);
+  // task flyWheelTask(flyWheelPIDTask);
+
+  // visionPickUpDisc();
+
+
+  // while (inertialSensor.rotation() < 1800) {
+  //   frontLeft.spin(fwd);
+  //   frontRight.spin(reverse);
+  //   backLeft.spin(fwd);
+  //   backRight.spin(reverse);
+  // }
+
+  // frontLeft.stop();
+  // frontRight.stop();
+  // backLeft.stop();
+  // backRight.stop();
+  
+  ////////// AUTON SKILLS//////////
+  //Start At Funnel? Shoot 7 Discs// 
+  
+  //First Roller// 
+  driveTo(0.7, 0.31, M_PI/2, 2500, 1);
+  waitUntil(enablePID == false);
+  driveTo(0.7, 0.29, M_PI/2, 2500, 1);
+  rollerBlue();
+  waitUntil(enablePID == false);
+  
+  //Pick Up Disc at 0.6 0.6?//
+  driveTo(1.2, 0.6, 0, 2500, 1);
+  waitUntil(enablePID == false);
+  toggleIntake();
+  driveTo(0.6, 0.6, 0, 2500, 1);
+  waitUntil(enablePID == false);
+  ///
+  ///
+
+  //Second Roller//
+  driveTo(0.31, 0.75, 0, 2500, 1);
+  waitUntil(enablePID == false);
+  driveTo(0.29, 0.75, 0, 2500, 1);
+  rollerBlue();
+  waitUntil(enablePID == false);
+
+  //Shoot in High Goal//
+  driveTo(0.6, 1.2, M_PI/2, 2500, 1);
+  toggleFlyWheel();
+  waitUntil(enablePID == false);
+  shootInHighGoal(3);
+  
+  //Get More Discs While Going Towards Other Corner// 
+
+  //Shoot in High Goal// 
+
+  //Third Roller//
+
+  //Forth Roller//
+
+  //Expansion (Should Already Be Automatic)//
+}
+
 //User Control
 void usercontrol() { // Try also applying PID, also maybe PID on the flywheel?? 
   task odometryTask(positionTracking);
@@ -436,11 +477,12 @@ int main() {
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
   Controller1.ButtonLeft.pressed(expand);
-  Controller1.ButtonRight.pressed(aimToHighGoal);
   Controller1.ButtonA.pressed(toggleFlyWheel);
   Controller1.ButtonB.pressed(toggleFieldOriented);
-  Controller1.ButtonY.pressed(rollerBlue);
-  Controller1.ButtonX.pressed(goToNearestRoller);
+  
+  Controller2.ButtonY.pressed(rollerBlue);
+  Controller2.ButtonX.pressed(goToNearestRoller);
+  Controller2.ButtonA.pressed(aimToHighGoal);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);

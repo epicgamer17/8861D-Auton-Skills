@@ -112,7 +112,6 @@ int drawField () {
     Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
     Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
 
-    
     //calculate where to place forward line
     desiredHeadingX = 10 * cos(desiredHeading);
     desiredHeadingY = 10 * sin(desiredHeading);

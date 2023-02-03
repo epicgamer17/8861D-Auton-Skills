@@ -52,88 +52,88 @@ float prevFlyWheel2RPM = 0;
 bool flyWheel2FirstCross = false;
 
 
-int sgn (float num) {
-  if (num >= 0)
-    return 1;
-  else
-    return -1;
-}
+// int sgn (float num) {
+//   if (num >= 0)
+//     return 1;
+//   else
+//     return -1;
+// }
 
-int flyWheelTBHTask() {
-  // timer flyWheelTimer = timer();
-  flyWheel1.setBrake(coast);
-  flyWheel2.setBrake(coast);
-  while (true) {
-    float approxPower = flyWheelSpeed/590;
+// int flyWheelTBHTask() {
+//   // timer flyWheelTimer = timer();
+//   flyWheel1.setBrake(coast);
+//   flyWheel2.setBrake(coast);
+//   while (true) {
+//     float approxPower = flyWheelSpeed/590;
 
-    if (flyWheelOn == true) {
-      flyWheel1Error = flyWheelSpeed - flyWheel1.velocity(rpm); //plus because the rpm is negative;
-      flyWheel1PowerTBH += (flyWheel1Error * kI);
+//     if (flyWheelOn == true) {
+//       flyWheel1Error = flyWheelSpeed - flyWheel1.velocity(rpm); //plus because the rpm is negative;
+//       flyWheel1PowerTBH += (flyWheel1Error * kI);
       
-      if(flyWheel1PowerTBH > 1) {
-        flyWheel1PowerTBH = 1;
-      }
-      else if(flyWheel1PowerTBH < 0) {
-      //Keep the motor power positive, to prevent damaging gears or motors
-        flyWheel1PowerTBH = 0;
-      }
+//       if(flyWheel1PowerTBH > 1) {
+//         flyWheel1PowerTBH = 1;
+//       }
+//       else if(flyWheel1PowerTBH < 0) {
+//       //Keep the motor power positive, to prevent damaging gears or motors
+//         flyWheel1PowerTBH = 0;
+//       }
       
-      if(sgn(flyWheel1Error) != sgn(prevFlyWheel1Error)) {
-        if (flyWheel1FirstCross) {
-          flyWheel1PowerTBH = approxPower; 
-          flyWheel1FirstCross = false;
-        } else {
-          flyWheel1PowerTBH = 0.5 * (flyWheel1PowerTBH + TBH1);
-          // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
-          // flyWheel1PowerTBH = TBH1;
-          // prevFlyWheel1Error = flyWheel1Error;
-        }
-        TBH1 = flyWheel1PowerTBH;      
-      }
+//       if(sgn(flyWheel1Error) != sgn(prevFlyWheel1Error)) {
+//         if (flyWheel1FirstCross) {
+//           flyWheel1PowerTBH = approxPower; 
+//           flyWheel1FirstCross = false;
+//         } else {
+//           flyWheel1PowerTBH = 0.5 * (flyWheel1PowerTBH + TBH1);
+//           // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
+//           // flyWheel1PowerTBH = TBH1;
+//           // prevFlyWheel1Error = flyWheel1Error;
+//         }
+//         TBH1 = flyWheel1PowerTBH;      
+//       }
       
-      prevFlyWheel1Error = flyWheel1Error;   
+//       prevFlyWheel1Error = flyWheel1Error;   
 
-      flyWheel2Error = flyWheelSpeed - flyWheel2.velocity(rpm); //plus because the rpm is negative;
-      flyWheel2PowerTBH += (flyWheel2Error * kI);
+//       flyWheel2Error = flyWheelSpeed - flyWheel2.velocity(rpm); //plus because the rpm is negative;
+//       flyWheel2PowerTBH += (flyWheel2Error * kI);
       
-      if(flyWheel2PowerTBH > 1) {
-        flyWheel2PowerTBH = 1;
-      }
-      else if(flyWheel2PowerTBH < 0) {
-      //Keep the motor power positive, to prevent damaging gears or motors
-        flyWheel1PowerTBH = 0;
-      }
+//       if(flyWheel2PowerTBH > 1) {
+//         flyWheel2PowerTBH = 1;
+//       }
+//       else if(flyWheel2PowerTBH < 0) {
+//       //Keep the motor power positive, to prevent damaging gears or motors
+//         flyWheel1PowerTBH = 0;
+//       }
       
-      if(sgn(flyWheel2Error) != sgn(prevFlyWheel2Error)) {
-        if (flyWheel2FirstCross) {
-          flyWheel2PowerTBH = approxPower; 
-          flyWheel2FirstCross = false;
-        } else {
-          flyWheel2PowerTBH = 0.5 * (flyWheel2PowerTBH + TBH2);
-          // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
-          // flyWheel1PowerTBH = TBH1;
-          // prevFlyWheel1Error = flyWheel1Error;
-        }
-        TBH2 = flyWheel2PowerTBH;      
-      }
+//       if(sgn(flyWheel2Error) != sgn(prevFlyWheel2Error)) {
+//         if (flyWheel2FirstCross) {
+//           flyWheel2PowerTBH = approxPower; 
+//           flyWheel2FirstCross = false;
+//         } else {
+//           flyWheel2PowerTBH = 0.5 * (flyWheel2PowerTBH + TBH2);
+//           // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
+//           // flyWheel1PowerTBH = TBH1;
+//           // prevFlyWheel1Error = flyWheel1Error;
+//         }
+//         TBH2 = flyWheel2PowerTBH;      
+//       }
       
-      prevFlyWheel2Error = flyWheel2Error;  
+//       prevFlyWheel2Error = flyWheel2Error;  
 
 
-      flyWheel1.spin(directionType::fwd, flyWheel1PowerTBH * 3600, velocityUnits::dps);
-      flyWheel2.spin(directionType::fwd, flyWheel2PowerTBH * 3600, velocityUnits::dps);
+//       flyWheel1.spin(directionType::fwd, flyWheel1PowerTBH * 3600, velocityUnits::dps);
+//       flyWheel2.spin(directionType::fwd, flyWheel2PowerTBH * 3600, velocityUnits::dps);
 
-      task::sleep(20);
-    }
-    else
-    {
-      flyWheel1.stop(coast);
-      flyWheel2.stop(coast);
-    }
-  }
+//       task::sleep(20);
+//     }
+//     else
+//     {
+//       flyWheel1.stop(coast);
+//       flyWheel2.stop(coast);
+//     }
+//   }
 
-  return 1;
-}
+//   return 1;
+// }
 
 void toggleFlyWheel() {
   if (flyWheelOn == false) {

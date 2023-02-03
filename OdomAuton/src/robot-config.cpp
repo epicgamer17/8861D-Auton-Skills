@@ -26,6 +26,7 @@ optical opticalSensor = optical(PORT16);
 signature visionSensor__YELLOW_DISC = signature (1, -237, 127, -55, -4455, -1861, -3158, 1.7, 0);
 vision visionSensor = vision (PORT20, 50, visionSensor__YELLOW_DISC);
 /*vex-vision-config:end*/
+controller Controller2 = controller(partner);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

@@ -5,34 +5,112 @@
 ////////////////////////////
 
 int lastFoundIndex = 0;
-// float lookAheadDis = 8;
 
-// this determines how long (how many frames) the animation will run. 400 frames takes around 30 seconds.
+float PPSPtToPtDistance (float x1, float y1, float x2, float y2) {
+    float dist = sqrt((pow((x2 - x1),2) + pow((y2 - y1),2)));
+    return dist;
+  }
 
-// float ptToPtDistance (float x1, float y1, float x2, float y2) {
-//     float dist = sqrt((pow((x2 - x1),2) + pow((y2 - y1),2)));
-//     return dist;
-//   }
+// returns -1 if num is negative, 1 otherwise
+int PPSSgn (float num) {
+  if (num >= 0)
+    return 1;
+  else
+    return -1;
+  }
 
-// // returns -1 if num is negative, 1 otherwise
-// int sgn (float num) {
-//   if (num >= 0)
-//     return 1;
-//   else
-//     return -1;
-//   }
-
-// # this function needs to return 3 things IN ORDER: goalPt, lastFoundIndex, turnVel
-// # think about this function as a snapshot in a while loop
-// # given all information about the robot's current state, what should be the goalPt, lastFoundIndex, and turnVel?
-// # the LFindex takes in the value of lastFoundIndex as input. Looking at it now I can't remember why I have it.
-// # it is this way because I don't want the global lastFoundIndex to get modified in this function, instead, this function returns the updated lastFoundIndex value 
-// # this function will be feed into another function for creating animation
 #include <bits/stdc++.h>
 using namespace std;
 
+
+#pragma region PID Varialbes
+
+float desiredTurnX = 0;
+float desiredTurnY = 0;
+float desiredHeading = 0;
+
+double turnError = 0;
+double turnPrevError = 0;
+
+double turnMinError = 0.01;
+
+double turnIntegral = 0;
+double turnIntegralBound = 0.09; //i think the units are radians so no need to convert to radians 
+
+double turnDerivative = 0;
+
+double turnkP = 13.00;
+double turnkI = 1.00;
+double turnkD = 10.00;
+
+double turnPowerPID = 0;
+
+double frontLeftPower = 0;
+double frontRightPower = 0;
+double backLeftPower = 0;
+double backRightPower = 0;
+
+double linearVelocity = 7;
+
+#pragma endregion PID Variables
+
+void PPSTurnToPoint(float dX, float dY) {
+  desiredTurnX = dX;
+  desiredTurnY = dY;
+  desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
+
+  if (desiredHeading < 0) {
+    desiredHeading = 2 * M_PI - fabs(desiredHeading);
+  }
+  
+  Brain.resetTimer();
+}
+
+void PPSTurnPID() {
+
+  desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
+
+  if (desiredHeading < 0) {
+    desiredHeading = 2 * M_PI - fabs(desiredHeading);
+  }
+
+  //Error is equal to the difference between the current facing direction and the target direction
+  turnError = currentAbsoluteOrientation - desiredHeading;
+
+  if(fabs(turnError) > M_PI) {
+    turnError = (turnError/fabs(turnError)) * -1 * fabs(2 * M_PI - turnError);
+  }
+
+  //only use integral if close enough to target
+  if(fabs(turnError) < turnIntegralBound) {
+    turnIntegral += turnError;
+  }
+  else {
+    turnIntegral = 0;
+  }
+
+  //reset integral if we pass the target
+  if(turnError * turnPrevError < 0) {
+    turnIntegral = 0;
+  } 
+
+  turnDerivative = turnError - turnPrevError;
+
+  turnPrevError = turnError;
+
+  turnPowerPID = (turnError * turnkP + turnIntegral * turnkI + turnDerivative * turnkD);
+
+  //Limit power output to 12V
+  if(turnPowerPID > 12) {
+    turnPowerPID = 12;
+  }
+
+  if(fabs(turnError) < turnMinError) {
+    turnPowerPID = 0;
+  }
+}
+
 void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
-  printf("%d", LFIndex);
   // # use for loop to search intersections
   bool intersectFound = false;
   int startingIndex = LFIndex;
@@ -53,8 +131,8 @@ void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
 
 
     if (discriminant >= 0) {
-      float sol_x1 = (D * dy + sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
-      float sol_x2 = (D * dy - sgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
+      float sol_x1 = (D * dy + PPSSgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
+      float sol_x2 = (D * dy - PPSSgn(dy) * dx * sqrt(discriminant)) / pow(dr,2);
       float sol_y1 = (- D * dx + fabs(dy) * sqrt(discriminant)) / pow(dr,2);
       float sol_y2 = (- D * dx - fabs(dy) * sqrt(discriminant)) / pow(dr,2);
 
@@ -69,16 +147,6 @@ void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
       float maxX = fmax(path[i][0], path[i+1][0]);
       float maxY = fmax(path[i][1], path[i+1][1]);
 
-      // printf("\n Goal X1 %f", goalX1);
-      // printf("\n Goal Y1 %f", goalY1);
-      // printf("\n Goal X2 %f", goalX2);
-      // printf("\n Goal Y2 %f", goalY2);
-      
-      // printf("\n Temp X %f", tempX);
-      // printf("\n Temp Y %f", tempY);
-
-      printf("\n Last Index %d", LFIndex);
-
       // # if one or both of the solutions are in range
       if (((minX <= goalX1 <= maxX) && (minY <= goalY1 <= maxY)) || ((minX <= goalX2 <= maxX) && (minY <= goalY2 <= maxY))) {
         intersectFound = true;
@@ -87,7 +155,7 @@ void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
         if (((minX <= goalX1 <= maxX) and (minY <= goalY1 <= maxY)) and ((minX <= goalX2 <= maxX) and (minY <= goalY2 <= maxY))) {
           // # make the decision by compare the distance between the intersections and the next point in path
           printf("both solutions are in range take the closest one \n");
-          if (ptToPtDistance(goalX1, goalY1, path[i+1][0], path[i+1][1]) < ptToPtDistance(goalX2, goalY2, path[i+1][0], path[i+1][1])) {
+          if (PPSPtToPtDistance(goalX1, goalY1, path[i+1][0], path[i+1][1]) < PPSPtToPtDistance(goalX2, goalY2, path[i+1][0], path[i+1][1])) {
             tempX = goalX1;
             tempY = goalY1;
           } else {
@@ -108,7 +176,7 @@ void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
           }
         }  
         // # only exit loop if the solution pt found is closer to the next pt in path than the current pos
-        if (ptToPtDistance(tempX, tempY, path[i+1][0], path[i+1][1]) < ptToPtDistance(globalX, globalY, path[i+1][0],path[i+1][1])) {
+        if (PPSPtToPtDistance(tempX, tempY, path[i+1][0], path[i+1][1]) < PPSPtToPtDistance(globalX, globalY, path[i+1][0],path[i+1][1])) {
           // # update lastFoundIndex and exit
           printf("Exit the loop because the sol point was closer to the next pt in the path than the current position \n");
           LFIndex = i;
@@ -123,34 +191,20 @@ void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
       else {
         intersectFound = false;
         // # no new intersection found, potentially deviated from the path
-        // # follow path[lastFoundIndex]
         printf("no new intersection found, potentially deviated from the path \n");
         tempX = path[LFIndex][0];
         tempY = path[LFIndex][1];
       }
     }
   }
-  // # obtained goal point, now compute turn vel
-  // # initialize proportional controller constant
-  // Kp = 3
 
-  // # calculate absTargetAngle with the atan2 function
-  // absTargetAngle = math.atan2 (goalPt[1]-currentPos[1], goalPt[0]-currentPos[0]) *180/pi
-  // if absTargetAngle < 0: absTargetAngle += 360
+  // driveToAndTurnToPoint(tempX, tempY, 10000, 1); //for odom pid
 
-  // # compute turn error by finding the minimum angle
-  // turnError = absTargetAngle - currentHeading
-  // if turnError > 180 or turnError < -180 :
-  //   turnError = -1 * sgn(turnError) * (360 - abs(turnError))
   
-  // # apply proportional controller
-  // turnVel = Kp*turnError
-  
+  PPSTurnToPoint(tempX, tempY);
 
-  driveToAndTurnToPoint(tempX, tempY, 10000, 1);
   lastFoundIndex = LFIndex; 
   return;
-  // return goalPt, lastFoundIndex, turnVel
 }
 
 
@@ -161,8 +215,24 @@ vector<vector<float>> path1 {{0, 0}, {1.2, 1.2}, {0,1.2}, {0, 0}};
     if (lastFoundIndex >= path1.size()) {
       lastFoundIndex = 0;
     }
-    printf("%d", lastFoundIndex);
     PPS(path1, 0.4, lastFoundIndex);
+    
+    //get PID values for driving and turning
+    PPSTurnPID();
+
+    //set power for each motor
+    frontLeftPower = ((linearVelocity /* if you includ the setDrivePower then you could drive without needing to face a certain direction*/) + turnPowerPID);
+    frontRightPower = ((linearVelocity) - turnPowerPID);
+    backLeftPower = ((linearVelocity) + turnPowerPID);
+    backRightPower = ((linearVelocity) - turnPowerPID);
+
+    frontLeft.spin(directionType::fwd, frontLeftPower, voltageUnits::volt);
+    frontRight.spin(directionType::fwd, frontRightPower, voltageUnits::volt);
+    backLeft.spin(directionType::fwd, backLeftPower, voltageUnits::volt);
+    backRight.spin(directionType::fwd, backRightPower, voltageUnits::volt);
+    //What to do when not using the chassis controls    
+    
+    task::sleep(20);
   }
   return 1;
 }
