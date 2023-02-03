@@ -2,6 +2,8 @@ using namespace vex;
 
 extern brain Brain;
 
+using signature = vision::signature;
+
 // VEXcode devices
 extern motor backLeft;
 extern motor frontLeft;
@@ -17,6 +19,14 @@ extern inertial inertialSensor;
 extern rotation sidewaysRotation;
 extern rotation forwardRotation;
 extern optical opticalSensor;
+extern signature visionSensor__YELLOW_DISC;
+extern signature visionSensor__SIG_2;
+extern signature visionSensor__SIG_3;
+extern signature visionSensor__SIG_4;
+extern signature visionSensor__SIG_5;
+extern signature visionSensor__SIG_6;
+extern signature visionSensor__SIG_7;
+extern vision visionSensor;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

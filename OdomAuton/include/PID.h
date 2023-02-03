@@ -3,9 +3,14 @@
 
 extern float desiredY;
 extern float desiredX;
+extern float desiredTurnY;
+extern float desiredTurnX;
 extern float desiredHeading;
 
 extern bool enablePID;
+extern bool userControl;
+extern bool turningToPoint;
+extern bool invertedTurning;
 
 extern void driveTo(float dX, float dY, float dH, float timeoutTime, float mSpeed);
 
@@ -13,7 +18,7 @@ extern void driveToAndTurnToPoint(float dX, float dY, float timeoutTime, float m
 
 extern void turnTo(float dH, float timeoutTime);
 
-extern void turnToPoint(float dX, float dY, float timeoutTime, bool inverted);
+extern void turnToPoint(float dX, float dY, float timeoutTime, bool inverted, bool driving);
 
 void setDrivePower(float theta);
 

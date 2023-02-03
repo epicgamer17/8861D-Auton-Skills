@@ -3,9 +3,14 @@
 #pragma region PID Varialbes
 bool enablePID = true;
 bool resetEncoders = false;
+bool userControl = false;
+bool turningToPoint = false;
+bool invertedTurning = false;
 
 float desiredX = 0;
 float desiredY = 0;
+float desiredTurnX = 0;
+float desiredTurnY = 0;
 float desiredHeading = 0;
 float timeoutLength = 2500;
 
@@ -14,49 +19,37 @@ float drivePowerFLBR = 0;
 //front right + back left drive power
 float drivePowerFRBL = 0;
 
-// float kP = 100;  //0.32 best for no tracking wheels and only p//0.5 might be better // or 0.25
-// float kI = 0.00; //0.00025 might be better // or 0.00125
-// float kD = 0.0; //0.005 might be better //or 0.0025
-// float turnkP = 0.5; // 0.1 is really nice, at least for only P values and no intertial 
-//                   //0.5 or 0.6 seems to work for only P values with intertial but you need to add +1 to your angle
-//                   //2 also work for intertial for turning
-// float turnkI = 0.0; 
-// float turnkD = 0.0; //might be better to have this low so that it does zig zag when driving straight (worth testing though)
-
 double turnError = 0;
 double turnPrevError = 0;
 
 double turnMinError = 0.01;
 
 double turnIntegral = 0;
-double turnIntegralBound = 0.09;
+double turnIntegralBound = 0.09; //i think the units are radians so no need to convert to radians 
 
 double turnDerivative = 0;
 
-double turnkP = 10;
-double turnkI = 0.00;
-double turnkD = 0.00;
+// double turnkP = 10;
+// double turnkI = 0.00;
+// double turnkD = 0.00;
 
-// double turnkP = 13.00;
-// double turnkI = 1.00;
-// double turnkD = 10.00;
-
+double turnkP = 13.00;
+double turnkI = 1.00;
+double turnkD = 10.00;
 
 double turnPowerPID = 0;
 
-// double driveError = 0;
-// double drivePrevError = 0;
+double driveMinError = 0.0025;
 
-double driveMinError = 0.01;
+double driveIntegralBound = 0.038; //converted inches to m (23880E had 1.5 inches)
 
-// double driveIntegral = 0;
-double driveIntegralBound = 1.5;
+// double drivekP = 20;
+// double drivekI = 0.0;
+// double drivekD = 0.0;
 
-// double driveDerivative = 0;
-
-double drivekP = 10;
-double drivekI = 0.0;
-double drivekD = 0.0;
+double drivekP = 59.1; //converted to meters. not
+double drivekI = 0.787; //converted to meters
+double drivekD = 394; //converted to meters
 
 double drivePowerPID = 0;
 
@@ -65,29 +58,20 @@ float drivePrevError = 0; //Position 20ms ago
 float driveDerivative; // error - prevError : Speed
 float driveIntegral = 0; // totalError += error : Integral 
 
+double frontLeftPower = 0;
+double frontRightPower = 0;
+double backLeftPower = 0;
+double backRightPower = 0;
 
+//distances between robot's current position and the target position
+double xDistToTarget = 0;
+double yDistToTarget = 0;
 
-// double yDrivePowerPID = 0;
-// double xDrivePowerPID = 0;
+//angle of hypotenuse of X and Y distances
+double hypotenuseAngle = 0;
 
-// float yDriveError; //Desired Value - Sensor Value: Position
-// float yDrivePrevError = 0; //Position 20ms ago
-// float yDriveDerivative; // error - prevError : Speed
-// float yDriveIntegral = 0; // totalError += error : Integral 
+double robotRelativeAngle = 0;
 
-// float xDriveError; //Desired Value - Sensor Value: Position
-// float xDrivePrevError = 0; //Position 20ms ago
-// float xDriveDerivative; // error - prevError : Speed
-// float xDriveIntegral = 0; // totalError += error : Integral 
-
-// float turnError; //Desired Value - Sensor Value: Position
-// float turnPrevError = 0; //Position 20ms ago
-// float turnDerivative; // error - prevError : Speed
-// float turnTotalError = 0; // totalError += error : Integral 
-
-// int maxTurnIntegral = 20; // These cap the integrals
-// int maxIntegral = 3000;
-// int integralBound = 3; //If error is outside the bounds, then apply the integral. This is a buffer with +-integralBound degrees
 int maxSpeed = 1; //60 max speed good for tank drive 
 int maxTurningSpeed = 1;
 #pragma endregion PID Variables
@@ -112,6 +96,7 @@ void driveToAndTurnToPoint(float dX, float dY, float timeoutTime = 2500, float m
     desiredHeading = 2 * M_PI - fabs(desiredHeading);
   }
   enablePID = true;
+  turningToPoint = false;
   timeoutLength = timeoutTime;
   Brain.resetTimer();
   maxSpeed = mSpeed;
@@ -122,14 +107,17 @@ void turnTo(float dH, float timeoutTime = 2500) {
   desiredX = globalX; 
   desiredY = globalY;
   enablePID = true;
+  turningToPoint = false;
 
   timeoutLength = timeoutTime;
 
   Brain.resetTimer();
 }
 
-void turnToPoint(float dX, float dY, float timeoutTime = 2500, bool inverted = false) {
-  desiredHeading = atan2(dY - globalY, dX - globalX);
+void turnToPoint(float dX, float dY, float timeoutTime = 2500, bool inverted = false, bool driving = false) {
+  desiredTurnX = dX;
+  desiredTurnY = dY;
+  desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
 
   if (inverted == true) {
     desiredHeading = desiredHeading - M_PI;
@@ -139,11 +127,14 @@ void turnToPoint(float dX, float dY, float timeoutTime = 2500, bool inverted = f
     desiredHeading = 2 * M_PI - fabs(desiredHeading);
   }
 
-
-  desiredX = globalX; 
-  desiredY = globalY;
+  if (driving == false) {
+    desiredX = globalX; 
+    desiredY = globalY;
+  }
   
   enablePID = true;
+  turningToPoint = true;
+  invertedTurning = inverted;
 
   timeoutLength = timeoutTime;
 
@@ -203,6 +194,18 @@ void drivePID() {
 
 
 void turnPID() {
+  if (turningToPoint == true)
+  {
+    desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
+    if (invertedTurning == true) {
+      desiredHeading = desiredHeading - M_PI;
+    }
+
+    if (desiredHeading < 0) {
+      desiredHeading = 2 * M_PI - fabs(desiredHeading);
+    }
+  }
+
   //Error is equal to the difference between the current facing direction and the target direction
   turnError = currentAbsoluteOrientation - desiredHeading;
 
@@ -238,21 +241,6 @@ void turnPID() {
     turnPowerPID = 0;
   }
 }
-
-
-double frontLeftPower = 0;
-double frontRightPower = 0;
-double backLeftPower = 0;
-double backRightPower = 0;
-
-//distances between robot's current position and the target position
-double xDistToTarget = 0;
-double yDistToTarget = 0;
-
-//angle of hypotenuse of X and Y distances
-double hypotenuseAngle = 0;
-
-double robotRelativeAngle = 0;
 
 /* CHASSIS CONTROL TASK */
 int PIDTask() {
@@ -305,12 +293,14 @@ int PIDTask() {
       backLeft.spin(directionType::fwd, backLeftPower, voltageUnits::volt);
       backRight.spin(directionType::fwd, backRightPower, voltageUnits::volt);
    
-      if(fabs(driveError) < 0.03 && fabs(turnError) < 0.003) {
+      if(fabs(driveError) < 0.00254 && fabs(turnError) < 0.003) {
         enablePID = false;
+        turningToPoint = false;
       }
 
       if(Brain.timer(timeUnits::msec) > timeoutLength) {
         enablePID = false;
+        turningToPoint = false;
       }
 
       // Brain.Screen.setCursor(1,2);
@@ -326,7 +316,8 @@ int PIDTask() {
 
     }
     //What to do when not using the chassis controls
-    else {
+    else if (userControl == false) {
+      
       // FrontLeftDrive.stop(brakeType::brake);
       // FrontRightDrive.stop(brakeType::brake);
       // BackLeftDrive.stop(brakeType::brake);

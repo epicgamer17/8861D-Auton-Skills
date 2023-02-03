@@ -13,6 +13,6 @@ extern void decreaseFlyWheelSpeed();
 
 int sgn (float num);
 
-extern int TBHTask();
+extern int flyWheelTBHTask();
 
 extern void toggleFlyWheel();

@@ -24,6 +24,7 @@
 // sidewaysRotation     rotation      18              
 // forwardRotation      rotation      19              
 // opticalSensor        optical       16              
+// visionSensor         vision        20              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // Robot configuration code.
 #pragma endregion VEXcode Generated Robot Configuration
@@ -46,8 +47,18 @@ bool fieldOriented = false;
 #pragma endregion Variables
 
 void aimToHighGoal() {
-  turnToPoint(0.37, 3.25, 2500, false);
+  turnToPoint(0.37, 3.25, 2500, false, false);
   waitUntil(enablePID == false);
+}
+
+void shootInHighGoal(int numShots) {
+  turnToPoint(0.37, 3.25, 2500, false, true);
+  waitUntil(enablePID == false);
+  for (int i = 0; i < numShots; i ++) {
+    index();
+    wait(750, msec);
+  }
+  toggleFlyWheel();
 }
 
 float ptToPtDistance (float x1, float y1, float x2, float y2) {
@@ -57,20 +68,20 @@ float ptToPtDistance (float x1, float y1, float x2, float y2) {
 
 
 void goToNearestRoller() {
-  if (ptToPtDistance(globalX, globalY, 0.4425, 0.4425) < ptToPtDistance(globalX, globalY, 3.175, 3.175)) {  
+  if (ptToPtDistance(globalX, globalY, 0.525, 0.525) < ptToPtDistance(globalX, globalY, 3.075, 3.075)) {  
     if (ptToPtDistance(globalX, globalY, 0.15, 0.735) < ptToPtDistance(globalX, globalY, 0.735, 0.15)) {
-      driveTo(0.15, 0.735, 0, 2500, 2);
+      driveTo(0.3, 0.75, 0, 7500, 1);
       waitUntil(enablePID == false);
     } else {
-      driveTo(0.735, 0.15, M_PI/2, 2500, 2);
+      driveTo(0.85, 0.3, M_PI/2, 7500, 1);
       waitUntil(enablePID == false);
     }
   } else {
     if (ptToPtDistance(globalX, globalY, 2.9, 3.45) < ptToPtDistance(globalX, globalY, 3.45, 2.9)) {
-      driveTo(2.9, 3.45, 3*M_PI/2, 2500, 2);
+      driveTo(2.85, 3.3, 3*M_PI/2, 7500, 1);
       waitUntil(enablePID == false);
     } else {
-      driveTo(3.45, 2.9, M_PI, 2500, 2);
+      driveTo(3.3, 2.75, M_PI, 7500, 1);
       waitUntil(enablePID == false);
     }
   }
@@ -140,7 +151,6 @@ void pre_auton() {
 void autonomous(void) {  
 
   //reset rotation sensors
-  // LTrack.resetPosition();
   forwardRotation.resetPosition();
   sidewaysRotation.resetPosition();
 
@@ -148,6 +158,8 @@ void autonomous(void) {
   frontRight.resetRotation();
   backLeft.resetRotation();
   backRight.resetRotation();
+  
+  // visionPickUpDisc();
 
   //start the odometry
   task odometryTask(positionTracking);
@@ -155,8 +167,12 @@ void autonomous(void) {
   task pidTask(PIDTask);
   // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
-  task failSafeExpansion = vex::task(autonExpand);
+  task failSafeExpansion(autonExpand);
   // task flyWheelTask(flyWheelPIDTask);
+
+  // visionPickUpDisc();
+
+
   // while (inertialSensor.rotation() < 1800) {
   //   frontLeft.spin(fwd);
   //   frontRight.spin(reverse);
@@ -175,70 +191,176 @@ void autonomous(void) {
   
 
   ///CONSIDER USING DRIVE TO ROLLER FUNCTION FOR THIS
-  driveTo(0.85, 0.15, M_PI/2, 2500, 2);
+  driveTo(0.65, 0.3, M_PI/2, 2500, 1); //0.65 instead of 0.75 s that the optical sensor sees the roller
   waitUntil(enablePID == false);
-  driveTo(0.85, 0.4, M_PI/2, 2500, 6);
-  waitUntil(enablePID == false);
-  toggleIntake();
-  driveTo(0.6, 0.6, currentAbsoluteOrientation, 2500, 2); 
-  turnToPoint(0.6, 0.6, 2500, true);
+  rollerBlue();
+  driveTo(0.8, 0.4, M_PI/2, 2500, 1);
   waitUntil(enablePID == false);
   toggleIntake();
-  driveTo(0.15, 0.85, 0, 2500, 2);
+  turnToPoint(0.5, 0.7, 2500, true, false);
   waitUntil(enablePID == false);
-  flyWheelSpeed = 9;
+  driveTo(0.6, 0.6, currentAbsoluteOrientation, 2500, 1); 
+  waitUntil(enablePID == false);
+  toggleIntake();
+  driveTo(0.25, 0.85, 0, 2500, 1); //did 0.25 bc the bot always falls short, but 0.85 is so that optical can see the roller
+  waitUntil(enablePID == false);
+  rollerBlue();
+
+  flyWheelSpeed = 8.7;
   toggleFlyWheel();
-  driveTo(0.2, 2.25, 7*M_PI/16, 2500, 2);
-  waitUntil(enablePID == false);
-  index();
-  wait(1000, msec);
-  index();
-  wait(1000, msec);
-  index();
-  wait(1000, msec);
+  driveTo(0.25, 2.05, 7*M_PI/16, 2500, 1);
+  // waitUntil(enablePID == false);
+  // turnToPoint(0.37, 3.25, 2500, false, true);
+  // waitUntil(enablePID == false);
+  // index();
+  // wait(1000, msec);
+  // index();
+  // wait(1000, msec);
+  // index();
+  // wait(1000, msec);
+  // toggleFlyWheel();
+  shootInHighGoal(3);
+
   toggleFlyWheel();
-  driveTo(0.2, 2.2, M_PI, 2500, 2);
+  toggleIntake();
+  driveTo(1.35, 2.05, 5*M_PI/8, 2500, 1);
+  waitUntil(enablePID == false);
+  // turnToPoint(0.37, 3.25, 2500, false, false);
+  // wait(100, msec);
+  // waitUntil(enablePID == false);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // toggleFlyWheel();
+  shootInHighGoal(3);
+
+
+  driveTo(1.525, 2.125, currentAbsoluteOrientation, 2500, 1);
+  waitUntil(enablePID == false);
+  driveTo(0.9, 1.5, M_PI/4, 2500, 1);
   waitUntil(enablePID == false);
   toggleFlyWheel();
-  driveTo(1.35, 2.3, M_PI, 2500, 2);
-  waitUntil(enablePID == false);
-  turnToPoint(0.37, 3.25, 2500, false);
-  wait(1.5, sec); // dont know why for some reason it only works if this wait is here. 
-  waitUntil(enablePID == false);
-  index();
-  wait(1000, msec);
-  index();
-  wait(1000, msec);
-  index();
-  wait(1000, msec);
+  driveTo(1.4, 2.25, 3*M_PI/4, 2500, 1);
+  // waitUntil(enablePID == false);
+  
+  // turnToPoint(0.37, 3.25, 2500, false, true);
+  // waitUntil(enablePID == false);  
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  shootInHighGoal(3);
+
+
   toggleFlyWheel();
-  driveTo(2.75, 3.45, 3*M_PI/2, 5000, 1);
+  driveTo(1.35, 3.2, M_PI/2, 2500, 1);
   waitUntil(enablePID == false);
-  driveTo(3.45, 2.75, M_PI, 2500, 2);
+  // turnToPoint(0.37, 3.25, 2500, false, false);
+  // waitUntil(enablePID == false);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  shootInHighGoal(3);
+
+  toggleFlyWheel();
+  driveTo(1.8, 3.375, currentAbsoluteOrientation, 2500, 1);
+  // waitUntil(enablePID == false);
+  // turnToPoint(0.37, 3.25, 2500, false, true);
+  // waitUntil(enablePID == false);  
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // toggleFlyWheel();
+  shootInHighGoal(7);
+
+
+  toggleFlyWheel();
+  driveTo(2.15, 2.75, currentAbsoluteOrientation, 2500, 1);
+  turnToPoint(2.2, 2.65, 2500, true, true);
+  wait(1, sec);
   waitUntil(enablePID == false);
+
+  // turnToPoint(0.37, 3.25, 2500, false, false);
+  // waitUntil(enablePID == false);  
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  shootInHighGoal(3);
+
+  toggleFlyWheel();
+  driveTo(2.75, 2.75, M_PI, 2500, 1);
+  waitUntil(enablePID == false);
+  // turnToPoint(0.37, 3.25, 2500, false, false);
+  // waitUntil(enablePID == false);  
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // index();
+  // wait(750, msec);
+  // toggleFlyWheel();
+  shootInHighGoal(3);
+
+  driveTo(2.85, 3.3, 3*M_PI/2, 2500, 1);
+  waitUntil(enablePID == false);
+  rollerBlue();
+  driveTo(3.3, 2.85, M_PI, 2500, 1);
+  waitUntil(enablePID == false);
+  rollerBlue();
   driveTo(3, 3, 5*M_PI/4, 2500, 10);
   waitUntil(enablePID == false);
   expand();
-  driveTo(0.85, 0.35, M_PI/2, 10000, 2);
+  driveTo(0.85, 0.35, M_PI/2, 10000, 1);
+  waitUntil(enablePID == false);
+  enablePID = false;
 }
 
 //User Control
 void usercontrol() { // Try also applying PID, also maybe PID on the flywheel?? 
+  task odometryTask(positionTracking);
+  task drawFieldTask(drawField); // uncomment after testing turning
+  task pidTask(PIDTask);
+  // task purePursuit(PPSTask);
+  // task intakeTask(intakeControl);
+  // task flyWheelTask(flyWheelTBHTask);
+  
   enablePID = false;
+  userControl = true;
+
   float backLeftSpeed = 0;
   float frontLeftSpeed = 0;
   float backRightSpeed = 0;
   float frontRightSpeed = 0;
-  // task flyWheelTask(flyWheelPIDTask);
 
   while (true) {
     int joystickAxis3 = Controller1.Axis3.value();
     int joystickAxis4 = Controller1.Axis4.value();
-    int joystickAxis1 = Controller1.Axis1.value();
+    int joystickAxis1 = Controller1.Axis1.value()  * 0.7;
   
-    joystickAxis3 = abs(joystickAxis3) < 10 ? 0 : joystickAxis3;
-    joystickAxis4 = abs(joystickAxis4) < 10 ? 0 : joystickAxis4;
-    joystickAxis1 = abs(joystickAxis1) < 10 ? 0 : joystickAxis1;
+    joystickAxis3 = abs(joystickAxis3) < 15 ? 0 : joystickAxis3;
+    joystickAxis4 = abs(joystickAxis4) < 15 ? 0 : joystickAxis4;
+    joystickAxis1 = abs(joystickAxis1) < 15 ? 0 : joystickAxis1;
 
     // Controller1.Screen.clearScreen();
     // Controller1.Screen.setCursor(1,1);
@@ -250,27 +372,7 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
 
     // printf("\n Brightnesss %f", opticalSensor.brightness());
     // printf("\n Hue %f", opticalSensor.hue());
-    
-    // Brain.Screen.clearScreen();
-    // Brain.Screen.setCursor(1, 1);
-    // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
-    // Brain.Screen.newLine();
-    // Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
-    // Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 3: %d ", joystickAxis3);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 4: %d ", joystickAxis4);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Joystick Axis 1: %d ", joystickAxis1);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Front Left: %f", frontLeftSpeed);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Front Right: %f", frontRightSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Left: %f", backLeftSpeed);
-    //   Brain.Screen.newLine();    
-    //   Brain.Screen.print("Back Right: %f", backRightSpeed);
-    //   Brain.Screen.newLine();
+
 
     if (fieldOriented == true) {
       int turn = joystickAxis1;
@@ -285,29 +387,29 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
       frontLeftSpeed = (x + turn);
       backRightSpeed = (x - turn);
       frontRightSpeed = (y - turn);
-
-    //   Brain.Screen.print("Y: %d ", y);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("X: %d ", x);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Turn: %d ", turn);
-    //   Brain.Screen.newLine();
-    //   Brain.Screen.print("Inertial Heading: %f", inertialSensor.heading());
-    //   Brain.Screen.newLine();
     } else {
       backLeftSpeed = ((joystickAxis3 - joystickAxis4 + joystickAxis1));
       frontLeftSpeed = ((joystickAxis3 + joystickAxis4 + joystickAxis1));
       backRightSpeed = ((joystickAxis3 + joystickAxis4 - joystickAxis1));
       frontRightSpeed = ((joystickAxis3 - joystickAxis4 - joystickAxis1)); 
-    //   Brain.Screen.print("Inertial Heading: %f", inertialSensor.heading());
-    //   Brain.Screen.newLine();
     }
 
-    backLeft.spin(vex::directionType::fwd, backLeftSpeed, vex::velocityUnits::pct); //consider doing voltage
-    frontLeft.spin(vex::directionType::fwd, frontLeftSpeed, vex::velocityUnits::pct);
-    backRight.spin(vex::directionType::fwd, backRightSpeed, vex::velocityUnits::pct);
-    frontRight.spin(vex::directionType::fwd, frontRightSpeed, vex::velocityUnits::pct);
+    if (joystickAxis1 != 0 || joystickAxis3 != 0 || joystickAxis4 != 0) {
+      enablePID = false;
+      desiredX = globalX;
+      desiredY = globalY;
+      desiredHeading = currentAbsoluteOrientation;
+      backLeft.spin(vex::directionType::fwd, backLeftSpeed, vex::velocityUnits::pct); //consider doing voltage
+      frontLeft.spin(vex::directionType::fwd, frontLeftSpeed, vex::velocityUnits::pct);
+      backRight.spin(vex::directionType::fwd, backRightSpeed, vex::velocityUnits::pct);
+      frontRight.spin(vex::directionType::fwd, frontRightSpeed, vex::velocityUnits::pct);
+    } else if (enablePID == false) {
+      backLeft.stop(coast); //consider doing voltage
+      frontLeft.stop(coast);
+      backRight.stop(coast);
+      frontRight.stop(coast);
 
+    }
     if (Controller1.ButtonL2.pressing()) 
     {
       intake.spin(reverse, 100, velocityUnits::pct);    
@@ -334,12 +436,11 @@ int main() {
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
   Controller1.ButtonLeft.pressed(expand);
-  //Button Right Unused
+  Controller1.ButtonRight.pressed(aimToHighGoal);
   Controller1.ButtonA.pressed(toggleFlyWheel);
   Controller1.ButtonB.pressed(toggleFieldOriented);
   Controller1.ButtonY.pressed(rollerBlue);
   Controller1.ButtonX.pressed(goToNearestRoller);
-  // Controller1.Button.pressed(aimToHighGoal);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);

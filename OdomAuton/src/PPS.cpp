@@ -9,18 +9,18 @@ int lastFoundIndex = 0;
 
 // this determines how long (how many frames) the animation will run. 400 frames takes around 30 seconds.
 
-float ptToPtDistance (float x1, float y1, float x2, float y2) {
-    float dist = sqrt((pow((x2 - x1),2) + pow((y2 - y1),2)));
-    return dist;
-  }
+// float ptToPtDistance (float x1, float y1, float x2, float y2) {
+//     float dist = sqrt((pow((x2 - x1),2) + pow((y2 - y1),2)));
+//     return dist;
+//   }
 
-// returns -1 if num is negative, 1 otherwise
-int sgn (float num) {
-  if (num >= 0)
-    return 1;
-  else
-    return -1;
-  }
+// // returns -1 if num is negative, 1 otherwise
+// int sgn (float num) {
+//   if (num >= 0)
+//     return 1;
+//   else
+//     return -1;
+//   }
 
 // # this function needs to return 3 things IN ORDER: goalPt, lastFoundIndex, turnVel
 // # think about this function as a snapshot in a while loop

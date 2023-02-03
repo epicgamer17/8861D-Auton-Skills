@@ -3,13 +3,21 @@
 float goalSize = 0.254 * 66.67;
 float discSize = 0.1016 * 66.67;
 
-float robotSize = 0.381 * 66.67 * 0.5;
+float robotSize = 22.5; //0.381 * 66.67 * 0.5;
 
 double lineOffset1 = 0;
 double lineOffset2 = 0;
 
+double lineOffsetDesired1 = 0;
+double lineOffsetDesired2 = 0;
+
+
 double headingX = 0;
 double headingY = 0;
+
+double desiredHeadingX = 0;
+double desiredHeadingY = 0;
+
 
 double robotX = 0;
 double robotY = 0;
@@ -71,8 +79,6 @@ int drawField () {
 
     // drawDisc(x + 240 -  27.83, y + 240 -  27.83);
 
-    drawDisc(desiredX * 66.67, 240 + (-desiredY * 66.67));
-
     //Calculate offsets for box around robot
     lineOffset1 = sqrt(2) * robotSize * cos(currentAbsoluteOrientation + M_PI_4);
     lineOffset2 = sqrt(2) * robotSize * cos(currentAbsoluteOrientation - M_PI_4);
@@ -93,7 +99,30 @@ int drawField () {
     headingY = 10 * sin(currentAbsoluteOrientation);
 
     //Draw Heading Line
-    Brain.Screen.drawLine(robotX, 240 + robotY, robotX + headingX, 240 + robotY - headingY);
+    Brain.Screen.drawLine(robotX, 240 + robotY, robotX + headingX, 240 + robotY - headingY);  
+
+    lineOffsetDesired1 = sqrt(2) * robotSize * cos(desiredHeading + M_PI_4);
+    lineOffsetDesired2 = sqrt(2) * robotSize * cos(desiredHeading - M_PI_4);
+    
+    //Draw Desired Location
+    drawDisc(desiredX * 66.67, 240 + (-desiredY * 66.67));
+    Brain.Screen.setPenColor(yellow);
+    Brain.Screen.drawLine(desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2, desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1);
+    Brain.Screen.drawLine(desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1, desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2);
+    Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
+    Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
+
+    
+    //calculate where to place forward line
+    desiredHeadingX = 10 * cos(desiredHeading);
+    desiredHeadingY = 10 * sin(desiredHeading);
+    
+    Brain.Screen.setPenColor(yellow);
+
+    //Draw Heading Line
+    Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
+
+    Brain.Screen.setPenColor(black);
 
     //Brain.Screen.setCursor(3, 7);
     //Brain.Screen.print(yPosGlobal);
@@ -101,14 +130,32 @@ int drawField () {
     //robotX += 1;
     //currentAbsoluteOrientation += 0.1;
 
-    Brain.Screen.setCursor(2, 35);
+    Brain.Screen.setCursor(2, 25);
     Brain.Screen.print("Orientation: %f", currentAbsoluteOrientation * 180 / M_PI);
 
-    Brain.Screen.setCursor(4, 35);
+    Brain.Screen.setCursor(3, 25);
     Brain.Screen.print("X: %f", globalX);
 
-    Brain.Screen.setCursor(6, 35);
+    Brain.Screen.setCursor(4, 25);
     Brain.Screen.print("Y: %f", globalY);
+
+    
+    Brain.Screen.setCursor(6, 25);
+    Brain.Screen.print("Joy Stick Axis 1: %f", Controller1.Axis1.value());
+
+    Brain.Screen.setCursor(7, 25);
+    Brain.Screen.print("Joy Stick Axis 3: %f", Controller1.Axis3.value());
+
+    Brain.Screen.setCursor(8, 25);
+    Brain.Screen.print("Joy Stick Axis 4: %f", Controller1.Axis4.value());
+
+    Brain.Screen.setCursor(10, 25);
+    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
+    Brain.Screen.setCursor(11, 25);
+    Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
+    Brain.Screen.setCursor(12, 25);
+    Brain.Screen.print("Flywheel Voltage: %f", flyWheelSpeed);
+
 
     task::sleep(20);
   }

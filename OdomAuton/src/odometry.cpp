@@ -13,8 +13,8 @@ float trackingWheelRadius = 0.034925;
 // bool fieldOriented = false;
 
 #pragma region Odometry
-float globalX = 0.85;
-float globalY = 0.35;
+float globalX = 0.83;
+float globalY = 0.33;
 // float globalX = 0.0;
 // float globalY = 0.0;
 
@@ -63,7 +63,7 @@ int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
 
     deltaFwdDist = ((fwdTrackingPos - prevFwdRotationPos) * M_PI/180) * trackingWheelRadius;
     // deltaSdwDist = ((sdwTrackingPos - prevSdwRotationPos) * M_PI/180) * trackingWheelRadius;
-    deltaSdwDist = ((sdwTrackingPos - prevSdwRotationPos - (1.7611 * deltaTheta)) * M_PI/180) * trackingWheelRadius;
+    deltaSdwDist = ((sdwTrackingPos - prevSdwRotationPos /*- (1.7611 * deltaTheta)*/) * M_PI/180) * trackingWheelRadius;
 
 
     prevFwdRotationPos = fwdTrackingPos;
@@ -83,8 +83,8 @@ int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
       //Calculate the changes in the X and Y values (METERS)
       //General equation is:
       //Distance = 2 * Radius * sin(deltaTheta / 2)
-      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) + 0.0); //Measure Forward Tracking wheel Track Radius
-      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) - 0.0); // before was + 0.065 for best results //Measure Sideways Track Radius
+      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) - 0.0025); //Measure Forward Tracking wheel Track Radius
+      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) + 0.065); //check if deltaSdwdist is negative when deltaTheta is positive, if so use + otherwise use - // before was + 0.065 for best results //Measure Sideways Track Radius
       // Sideways motor value changes 3170 over 5 turns
       // forward value changes 7 over 5 turns 
     }
@@ -109,16 +109,16 @@ int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
     globalY += deltaGlobalY;
 
 
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Forward Pos: %f", fwdTrackingPos);
-    Brain.Screen.newLine();    
-    Brain.Screen.print("Sideways Pos: %f", sdwTrackingPos);
-    Brain.Screen.newLine();
-    Brain.Screen.print("Current X: %f ", globalX);
-    Brain.Screen.newLine();
-    Brain.Screen.print("Current Y: %f ", globalY);
-    Brain.Screen.newLine();
+    // Brain.Screen.clearScreen();
+    // Brain.Screen.setCursor(1, 1);
+    // Brain.Screen.print("Forward Pos: %f", fwdTrackingPos);
+    // Brain.Screen.newLine();    
+    // Brain.Screen.print("Sideways Pos: %f", sdwTrackingPos);
+    // Brain.Screen.newLine();
+    // Brain.Screen.print("Current X: %f ", globalX);
+    // Brain.Screen.newLine();
+    // Brain.Screen.print("Current Y: %f ", globalY);
+    // Brain.Screen.newLine();
     // Brain.Screen.print("Current X: %f ", deltaLocalX);
     // Brain.Screen.newLine();
     // Brain.Screen.print("Current Y: %f ", deltaLocalY);

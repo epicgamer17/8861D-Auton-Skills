@@ -1,7 +1,7 @@
 #include "flywheel.h"
 
 bool flyWheelOn = false;
-float flyWheelSpeed = 10; // 80 for pct, i am using 10 for voltage 
+float flyWheelSpeed = 8.6; // 80 for pct, i am using 10 for voltage 
 
 //Index Function
 void index() {
@@ -10,27 +10,46 @@ void index() {
 
 void increaseFlyWheelSpeed() {
   if (flyWheelSpeed < 12) {  // < 100 for pct 12 for voltage 
-    flyWheelSpeed += 0.5;
+    flyWheelSpeed += 0.1;
+    if (flyWheelOn == true) {
+      flyWheel1.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+      flyWheel2.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+      // flyWheel1FirstCross = true;
+      // flyWheel2FirstCross = true;
+    }
   }
+  // if (flyWheelSpeed < 600) {  // < 100 for pct 12 for voltage 
+  //   flyWheelSpeed += 20;
+  // }
 }
 
 void decreaseFlyWheelSpeed() {
-  if (flyWheelSpeed > 0) {
-    flyWheelSpeed -= 0.5;
+  if (flyWheelSpeed > 6) {
+    flyWheelSpeed -= 0.1;
+    if (flyWheelOn == true) {
+      flyWheel1.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+      flyWheel2.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+      // flyWheel1FirstCross = true;
+      // flyWheel2FirstCross = true;
+    }
   }
 }
 
 
-float kI = .025; //again, this is arbitrary
-float flyWheelPowerTBH = 0;
-// float deltaFlyWheelRPM = 0;
-float flyWheelError = 0;
-float prevFlyWheelError = 0;
-float flyWheelIntegral = 0;
-float TBH = 0;
-float flyWheelTime = 0;
-float prevFlyWheelRPM = 0;
-float prevFlyWheelTime = 0;
+float kI = 0.00025; //again, this is arbitrary
+float flyWheel1PowerTBH = 0;
+float flyWheel1Error = 0;
+float prevFlyWheel1Error = 0;
+float TBH1 = 0;
+float prevFlyWheel1RPM = 0;
+bool flyWheel1FirstCross = false;
+
+float flyWheel2PowerTBH = 0;
+float flyWheel2Error = 0;
+float prevFlyWheel2Error = 0;
+float TBH2 = 0;
+float prevFlyWheel2RPM = 0;
+bool flyWheel2FirstCross = false;
 
 
 int sgn (float num) {
@@ -40,36 +59,69 @@ int sgn (float num) {
     return -1;
 }
 
-int TBHTask() {
-  timer flyWheelTimer = timer();
+int flyWheelTBHTask() {
+  // timer flyWheelTimer = timer();
+  flyWheel1.setBrake(coast);
+  flyWheel2.setBrake(coast);
   while (true) {
+    float approxPower = flyWheelSpeed/590;
+
     if (flyWheelOn == true) {
-      flyWheelTime = flyWheelTimer.time(msec);
-      // since rpm is already sort of deltaPosition we maybe can just use rpm instead of chage in degrees// deltaFlyWheelRPM = (flyWheel1.velocity(rpm) - prevFlyWheelRPM) / (flyWheelTime - prevFlyWheelTime);
-      flyWheelError = flyWheelSpeed - flyWheel1.velocity(rpm);
-      flyWheelIntegral += flyWheelError;
-      flyWheelPowerTBH = flyWheelIntegral * kI;
+      flyWheel1Error = flyWheelSpeed - flyWheel1.velocity(rpm); //plus because the rpm is negative;
+      flyWheel1PowerTBH += (flyWheel1Error * kI);
       
-      prevFlyWheelTime = flyWheelTime;
-
-      if(flyWheelPowerTBH > 12) {
-        flyWheelPowerTBH = 12;
+      if(flyWheel1PowerTBH > 1) {
+        flyWheel1PowerTBH = 1;
       }
-      else if(flyWheelPowerTBH < 0) {
+      else if(flyWheel1PowerTBH < 0) {
       //Keep the motor power positive, to prevent damaging gears or motors
-        flyWheelPowerTBH = 0;
+        flyWheel1PowerTBH = 0;
       }
       
-      if(sgn(flyWheelError) != sgn(prevFlyWheelError)) {
-        //If the sign of the error changes, then the error crossed zero
-        TBH = (flyWheelPowerTBH + TBH) / 2;
-        flyWheelPowerTBH = TBH;
-        prevFlyWheelError = flyWheelError;
-        //the last error doesn't matter unless the sign is different, so the last error is only stored when necessary
+      if(sgn(flyWheel1Error) != sgn(prevFlyWheel1Error)) {
+        if (flyWheel1FirstCross) {
+          flyWheel1PowerTBH = approxPower; 
+          flyWheel1FirstCross = false;
+        } else {
+          flyWheel1PowerTBH = 0.5 * (flyWheel1PowerTBH + TBH1);
+          // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
+          // flyWheel1PowerTBH = TBH1;
+          // prevFlyWheel1Error = flyWheel1Error;
+        }
+        TBH1 = flyWheel1PowerTBH;      
       }
+      
+      prevFlyWheel1Error = flyWheel1Error;   
 
-      flyWheel1.spin(directionType::fwd, -flyWheelPowerTBH, voltageUnits::volt);
-      flyWheel2.spin(directionType::fwd, -flyWheelPowerTBH, voltageUnits::volt);
+      flyWheel2Error = flyWheelSpeed - flyWheel2.velocity(rpm); //plus because the rpm is negative;
+      flyWheel2PowerTBH += (flyWheel2Error * kI);
+      
+      if(flyWheel2PowerTBH > 1) {
+        flyWheel2PowerTBH = 1;
+      }
+      else if(flyWheel2PowerTBH < 0) {
+      //Keep the motor power positive, to prevent damaging gears or motors
+        flyWheel1PowerTBH = 0;
+      }
+      
+      if(sgn(flyWheel2Error) != sgn(prevFlyWheel2Error)) {
+        if (flyWheel2FirstCross) {
+          flyWheel2PowerTBH = approxPower; 
+          flyWheel2FirstCross = false;
+        } else {
+          flyWheel2PowerTBH = 0.5 * (flyWheel2PowerTBH + TBH2);
+          // TBH1 = (flyWheel1PowerTBH + TBH1) / 2;
+          // flyWheel1PowerTBH = TBH1;
+          // prevFlyWheel1Error = flyWheel1Error;
+        }
+        TBH2 = flyWheel2PowerTBH;      
+      }
+      
+      prevFlyWheel2Error = flyWheel2Error;  
+
+
+      flyWheel1.spin(directionType::fwd, flyWheel1PowerTBH * 3600, velocityUnits::dps);
+      flyWheel2.spin(directionType::fwd, flyWheel2PowerTBH * 3600, velocityUnits::dps);
 
       task::sleep(20);
     }
@@ -79,16 +131,20 @@ int TBHTask() {
       flyWheel2.stop(coast);
     }
   }
+
+  return 1;
 }
 
 void toggleFlyWheel() {
   if (flyWheelOn == false) {
-    // flyWheel1.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
-    // flyWheel2.spin(directionType::fwd, -flyWheelSpeed, voltageUnits::volt);
+    flyWheel1.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+    flyWheel2.spin(reverse, flyWheelSpeed, voltageUnits::volt);
+    // flyWheel1FirstCross = true;
+    // flyWheel2FirstCross = true;
     flyWheelOn = true;
   } else if (flyWheelOn == true) {
-    // flyWheel1.stop(coast);
-    // flyWheel2.stop(coast);
+    flyWheel1.stop(coast);
+    flyWheel2.stop(coast);
     flyWheelOn = false;
   }
 }
