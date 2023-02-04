@@ -6,6 +6,8 @@
 #include "PPS.h"
 #include "intake.h"
 #include "flywheel.h"
+// #include "IMUPositionTracking.h"
+
 
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
@@ -48,13 +50,14 @@ bool fieldOriented = false;
 #pragma endregion Variables
 
 void aimToHighGoal() {
-  turnToPoint(0.37, 3.25, 2500, false, false);
+  turnToPoint(0.37, 3.25, 2500, false, true);
   waitUntil(enablePID == false);
 }
 
-void shootInHighGoal(int numShots) {
-  turnToPoint(0.37, 3.25, 2500, false, true);
-  waitUntil(enablePID == false);
+void shootInHighGoal(int numShots = 1) {
+  // turnToPoint(0.37, 3.25, 2500, false, true);
+  // waitUntil(enablePID == false);
+  aimToHighGoal();
   for (int i = 0; i < numShots; i ++) {
     index();
     wait(750, msec);
@@ -111,6 +114,7 @@ void pre_auton() {
   sidewaysRotation.resetPosition();
   forwardRotation.resetPosition();
 
+  indexer.setBrake(brakeType::coast);
   indexer.setStopping(brakeType::coast);
   indexer.setTimeout(1, timeUnits::sec);
   flyWheel1.setStopping(brakeType::coast);
@@ -162,7 +166,7 @@ void autonSkillsV1() {
   driveTo(0.6, 0.6, currentAbsoluteOrientation, 2500, 1); 
   waitUntil(enablePID == false);
   toggleIntake();
-  driveTo(0.25, 0.85, 0, 2500, 1); //did 0.25 bc the bot always falls short, but 0.85 is so that optical can see the roller
+  driveTo(0.275, 0.85, 0, 2500, 1); //did 0.275 bc the bot always falls short, but 0.85 is so that optical can see the roller
   waitUntil(enablePID == false);
   rollerBlue();
 
@@ -312,13 +316,13 @@ void autonomous(void) {
 
   //start the odometry
   task odometryTask(positionTracking);
+  // task IMUodometry(IMUPositionTracking);
   task drawFieldTask(drawField); // uncomment after testing turning
-  task pidTask(PIDTask);
-  // task purePursuit(PPSTask);
+  // task pidTask(PIDTask);
+  task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
   task failSafeExpansion(autonExpand);
-  // task flyWheelTask(flyWheelPIDTask);
-
+  // task flyWheelTask(flyWheelPICTask);
   // visionPickUpDisc();
 
 
@@ -380,11 +384,12 @@ void autonomous(void) {
 //User Control
 void usercontrol() { // Try also applying PID, also maybe PID on the flywheel?? 
   task odometryTask(positionTracking);
+  // task IMUodometry(IMUPositionTracking);
   task drawFieldTask(drawField); // uncomment after testing turning
   task pidTask(PIDTask);
   // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
-  // task flyWheelTask(flyWheelTBHTask);
+  // task flyWheelTask(flyWheelPICTask);
   
   enablePID = false;
   userControl = true;
@@ -393,6 +398,9 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   float frontLeftSpeed = 0;
   float backRightSpeed = 0;
   float frontRightSpeed = 0;
+
+  indexer.setBrake(brakeType::coast);
+  indexer.setStopping(brakeType::coast);
 
   while (true) {
     int joystickAxis3 = Controller1.Axis3.value();

@@ -25,42 +25,42 @@ using namespace std;
 
 #pragma region PID Varialbes
 
-float desiredTurnX = 0;
-float desiredTurnY = 0;
-float desiredHeading = 0;
+float PPSDesiredTurnX = 0;
+float PPSDesiredTurnY = 0;
+float PPSDesiredHeading = 0;
 
-double turnError = 0;
-double turnPrevError = 0;
+double PPSTurnError = 0;
+// double turnPrevError = 0;
 
-double turnMinError = 0.01;
+// double turnMinError = 0.01;
 
-double turnIntegral = 0;
-double turnIntegralBound = 0.09; //i think the units are radians so no need to convert to radians 
+// double turnIntegral = 0;
+// double turnIntegralBound = 0.09; //i think the units are radians so no need to convert to radians 
 
-double turnDerivative = 0;
+// double turnDerivative = 0;
 
-double turnkP = 13.00;
-double turnkI = 1.00;
-double turnkD = 10.00;
+double PPSTurnkP = 13.00;
+// double turnkI = 1.00;
+// double turnkD = 10.00;
 
-double turnPowerPID = 0;
+double PPSTurnPowerPID = 0;
 
-double frontLeftPower = 0;
-double frontRightPower = 0;
-double backLeftPower = 0;
-double backRightPower = 0;
+// double frontLeftPower = 0;
+// double frontRightPower = 0;
+// double backLeftPower = 0;
+// double backRightPower = 0;
 
-double linearVelocity = 7;
+double PPSLinearVelocity = 7;
 
 #pragma endregion PID Variables
 
 void PPSTurnToPoint(float dX, float dY) {
-  desiredTurnX = dX;
-  desiredTurnY = dY;
-  desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
+  PPSDesiredTurnX = dX;
+  PPSDesiredTurnY = dY;
+  PPSDesiredHeading = atan2(PPSDesiredTurnY - globalY, PPSDesiredTurnX - globalX);
 
-  if (desiredHeading < 0) {
-    desiredHeading = 2 * M_PI - fabs(desiredHeading);
+  if (PPSDesiredHeading < 0) {
+    PPSDesiredHeading = 2 * M_PI - fabs(PPSDesiredHeading);
   }
   
   Brain.resetTimer();
@@ -68,46 +68,46 @@ void PPSTurnToPoint(float dX, float dY) {
 
 void PPSTurnPID() {
 
-  desiredHeading = atan2(desiredTurnY - globalY, desiredTurnX - globalX);
+  PPSDesiredHeading = atan2(PPSDesiredTurnY - globalY, PPSDesiredTurnX - globalX);
 
-  if (desiredHeading < 0) {
-    desiredHeading = 2 * M_PI - fabs(desiredHeading);
+  if (PPSDesiredHeading < 0) {
+    PPSDesiredHeading = 2 * M_PI - fabs(PPSDesiredHeading);
   }
 
   //Error is equal to the difference between the current facing direction and the target direction
-  turnError = currentAbsoluteOrientation - desiredHeading;
+  PPSTurnError = currentAbsoluteOrientation - PPSDesiredHeading;
 
-  if(fabs(turnError) > M_PI) {
-    turnError = (turnError/fabs(turnError)) * -1 * fabs(2 * M_PI - turnError);
+  if(fabs(PPSTurnError) > M_PI) {
+    PPSTurnError = (PPSTurnError/fabs(PPSTurnError)) * -1 * fabs(2 * M_PI - PPSTurnError);
   }
 
   //only use integral if close enough to target
-  if(fabs(turnError) < turnIntegralBound) {
-    turnIntegral += turnError;
-  }
-  else {
-    turnIntegral = 0;
-  }
+  // if(fabs(turnError) < turnIntegralBound) {
+  //   turnIntegral += turnError;
+  // }
+  // else {
+  //   turnIntegral = 0;
+  // }
 
   //reset integral if we pass the target
-  if(turnError * turnPrevError < 0) {
-    turnIntegral = 0;
-  } 
+  // if(turnError * turnPrevError < 0) {
+  //   turnIntegral = 0;
+  // } 
 
-  turnDerivative = turnError - turnPrevError;
+  // turnDerivative = turnError - turnPrevError;
 
-  turnPrevError = turnError;
+  // turnPrevError = turnError;
 
-  turnPowerPID = (turnError * turnkP + turnIntegral * turnkI + turnDerivative * turnkD);
+  PPSTurnPowerPID = (PPSTurnError * PPSTurnkP /* + turnIntegral * turnkI + turnDerivative * turnkD */);
 
   //Limit power output to 12V
-  if(turnPowerPID > 12) {
-    turnPowerPID = 12;
+  if(PPSTurnPowerPID > 12) {
+    PPSTurnPowerPID = 12;
   }
 
-  if(fabs(turnError) < turnMinError) {
-    turnPowerPID = 0;
-  }
+  // if(fabs(PPSTurnError) < PPSTurnMinError) {
+  //   PPSTurnPowerPID = 0;
+  // }
 }
 
 void PPS(vector<vector<float>> path, float lookAheadDis, int LFIndex) {
@@ -221,15 +221,15 @@ vector<vector<float>> path1 {{0, 0}, {1.2, 1.2}, {0,1.2}, {0, 0}};
     PPSTurnPID();
 
     //set power for each motor
-    frontLeftPower = ((linearVelocity /* if you includ the setDrivePower then you could drive without needing to face a certain direction*/) + turnPowerPID);
-    frontRightPower = ((linearVelocity) - turnPowerPID);
-    backLeftPower = ((linearVelocity) + turnPowerPID);
-    backRightPower = ((linearVelocity) - turnPowerPID);
+    // frontLeftPower = ((linearVelocity /* if you includ the setDrivePower then you could drive without needing to face a certain direction*/) + turnPowerPID);
+    // frontRightPower = ((linearVelocity) - turnPowerPID);
+    // backLeftPower = ((linearVelocity) + turnPowerPID);
+    // backRightPower = ((linearVelocity) - turnPowerPID);
 
-    frontLeft.spin(directionType::fwd, frontLeftPower, voltageUnits::volt);
-    frontRight.spin(directionType::fwd, frontRightPower, voltageUnits::volt);
-    backLeft.spin(directionType::fwd, backLeftPower, voltageUnits::volt);
-    backRight.spin(directionType::fwd, backRightPower, voltageUnits::volt);
+    frontLeft.spin(directionType::fwd, ((PPSLinearVelocity) + PPSTurnPowerPID), voltageUnits::volt);
+    frontRight.spin(directionType::fwd, ((PPSLinearVelocity) - PPSTurnPowerPID), voltageUnits::volt);
+    backLeft.spin(directionType::fwd, ((PPSLinearVelocity) + PPSTurnPowerPID), voltageUnits::volt);
+    backRight.spin(directionType::fwd, ((PPSLinearVelocity) - PPSTurnPowerPID), voltageUnits::volt);
     //What to do when not using the chassis controls    
     
     task::sleep(20);

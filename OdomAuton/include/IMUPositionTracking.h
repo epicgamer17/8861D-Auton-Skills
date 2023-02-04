@@ -8,4 +8,4 @@ extern float IMUGlobalX;
 extern float IMUGlobalY;
 
 //The odometry function
-int IMUPositionTracking();
+extern int IMUPositionTracking();

@@ -11,6 +11,8 @@ extern void increaseFlyWheelSpeed();
 
 extern void decreaseFlyWheelSpeed();
 
+extern int flyWheelPICTask();
+
 int sgn (float num);
 
 extern int flyWheelTBHTask();

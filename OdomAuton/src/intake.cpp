@@ -42,12 +42,7 @@ double visionTurnkD = 10.00;
 
 double visionTurnPowerPID = 0;
 
-double frontLeftPower = 0;
-double frontRightPower = 0;
-double backLeftPower = 0;
-double backRightPower = 0;
-
-double linearVelocity = 7;
+double visionLinearVelocity = 7;
 
 int visionMaxTurningSpeed = 1;
 #pragma endregion PID Variables
@@ -90,7 +85,7 @@ void visionTurnPID() {
 }
   
 /* CHASSIS CONTROL TASK */
-int PIDTask() {
+int visionPIDTask() {
 
   //loop to constantly execute chassis commands
   while(1) {
@@ -101,15 +96,10 @@ int PIDTask() {
       turnPID();
 
       //set power for each motor
-      frontLeftPower = ((linearVelocity) + visionTurnPowerPID);
-      frontRightPower = ((linearVelocity) - visionTurnPowerPID);
-      backLeftPower = ((linearVelocity) + visionTurnPowerPID);
-      backRightPower = ((linearVelocity) - visionTurnPowerPID);
-
-      frontLeft.spin(directionType::fwd, frontLeftPower, voltageUnits::volt);
-      frontRight.spin(directionType::fwd, frontRightPower, voltageUnits::volt);
-      backLeft.spin(directionType::fwd, backLeftPower, voltageUnits::volt);
-      backRight.spin(directionType::fwd, backRightPower, voltageUnits::volt);
+      frontLeft.spin(directionType::fwd, (visionLinearVelocity) + visionTurnPowerPID, voltageUnits::volt);
+      frontRight.spin(directionType::fwd, (visionLinearVelocity) - visionTurnPowerPID, voltageUnits::volt);
+      backLeft.spin(directionType::fwd, (visionLinearVelocity) + visionTurnPowerPID, voltageUnits::volt);
+      backRight.spin(directionType::fwd, (visionLinearVelocity) - visionTurnPowerPID, voltageUnits::volt);
    
       // if(fabs(turnError) < 0.003) {
       //   enablePID = false;

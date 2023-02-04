@@ -7,4 +7,8 @@ extern void rollerBlue();
 
 extern void toggleIntake();
 
+void visionTurnPID();
+
+int visionPIDTask();
+
 extern void visionPickUpDisc();
