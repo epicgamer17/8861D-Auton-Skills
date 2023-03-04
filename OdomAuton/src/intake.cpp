@@ -1,23 +1,104 @@
 #include "intake.h"
 
 bool intakeOn = false;
-
+int discCount = 0;
+int intakeSpeed = 100;
 // void turnroller() {
 //   // PI/DFunc(-0.05, 0, 0);
 //   intake.spinFor(reverse, 1, rev, 100, velocityUnits::pct, true);
 // }
 
-void rollerBlue() {
+// void rollerBlue() {
+//   // intake.spinFor(forward, 0.3, rev, 100, velocityUnits::pct, true);
+//   // wait(250, msec);
+//   timer rollerTimeout = timer();
+//   opticalSensor.setLightPower(100);
+//   opticalSensor.setLight(vex::ledState::on);
+//   // while (opticalSensor.color() != color::blue && rollerTimeout.time() < 2500) {
+//   while (opticalSensor.hue() < 180 && rollerTimeout.time() < 2500) {
+//     intake.spin(forward, 20 /*- (rollerTimeout.time(msec)/125)*/, velocityUnits::pct);
+//     frontLeft.spin(reverse, 3, voltageUnits::volt);
+//     frontRight.spin(reverse, 3, voltageUnits::volt);
+//     backLeft.spin(reverse, 3, voltageUnits::volt);
+//     backRight.spin(reverse, 3, voltageUnits::volt);
+//     printf("\n Hue: %f", opticalSensor.hue());
+//   }
+//   // if (opticalSensor.color() == color::blue) {
+//   if (opticalSensor.hue() > 180) {
+//       printf(" \n intake sees blue!");
+//       // wait(50, msec);
+//       intake.stop();
+//   }
+//   opticalSensor.setLight(vex::ledState::off);
+
+//   // int isBlueFor = 0;
+//   // while (isBlueFor < 10) {
+//   //   while (opticalSensor.color() != color::blue && rollerTimeout.time() < 2500) {
+//   //     intake.spin(reverse, 100 - (rollerTimeout.time()/50), velocityUnits::pct);
+//   //   }
+//   //   if (opticalSensor.color() == color::blue) {
+//   //       intake.stop();
+//   //   }
+//   //   rollerTimeout.reset();
+//   //   while (opticalSensor.color() != color::blue && rollerTimeout.time() < 2500) {
+//   //     intake.spin(fwd, 100 - (rollerTimeout.time()/50), velocityUnits::pct);
+//   //   }
+//   //   if (opticalSensor.color() == color::blue) {
+//   //       intake.stop();
+//   //   }
+
+//   //   if (opticalSensor.color() == blue) {
+//   //     isBlueFor += 1;
+//   //   } else {
+//   //     isBlueFor = 0;
+//   //   }
+//   //   wait(20, msec);
+//   // }
+// }
+
+void rollerRed() {
+  intake.spinFor(forward, 0.2, rev, 100, velocityUnits::pct, true);
+  // wait(100, msec);
+  intakeOn = true;
   timer rollerTimeout = timer();
-  while (opticalSensor.color() != color::blue /*&& rollerTimeout.time() < 2500*/) {
-    intake.spin(reverse, 50, velocityUnits::pct);
+  opticalSensor.setLightPower(100);
+  opticalSensor.setLight(vex::ledState::on);
+  while (opticalSensor.color() != color(red) && rollerTimeout.time() < 2500 /*&& opticalSensor.isNearObject()*/) {
+    intake.spin(forward, 20 /*- (rollerTimeout.time(msec)/125)*/, velocityUnits::pct);
+    frontLeft.spin(reverse, 0.5, voltageUnits::volt);
+    frontRight.spin(reverse, 0.5, voltageUnits::volt);
+    backLeft.spin(reverse, 0.5, voltageUnits::volt);
+    backRight.spin(reverse, 0.5, voltageUnits::volt);
+    // printf("\n Hue: %f", opticalSensor.hue());
+    wait(10, msec);
   }
   intake.stop();
+  intakeOn = false;
+
+  // if (opticalSensor.hue() < 25  && opticalSensor.isNearObject()) {
+  //     printf(" \n intake sees red!");
+  //     // wait(50, msec);
+  //     intake.stop();
+  // }
+  opticalSensor.setLight(vex::ledState::off);
+}
+
+void countDiscs() {
+  if (discCounter.objectDistance(distanceUnits::mm) >= 130) {
+    discCount = 0; 
+  } else if (discCounter.objectDistance(distanceUnits::mm) < 130 && discCounter.objectDistance(distanceUnits::mm) >= 110) {
+    discCount = 1; 
+  } else if (discCounter.objectDistance(distanceUnits::mm) < 110 && discCounter.objectDistance(distanceUnits::mm) >= 91) {
+    discCount = 2; 
+  } else if (discCounter.objectDistance(distanceUnits::mm) < 91) {
+    discCount = 3; 
+  }
+  printf("\n %d", discCount);
 }
 
 void toggleIntake() {
   if (intakeOn == false) {
-    intake.spin(fwd, 100, velocityUnits::pct);
+    intake.spin(fwd, intakeSpeed, velocityUnits::pct);
     intakeOn = true;
   } else if (intakeOn == true) {
     intake.stop();

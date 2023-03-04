@@ -177,7 +177,14 @@ int drawField () {
     //Draw Heading Line
     Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
 
-    Brain.Screen.setPenColor(black);
+
+    Brain.Screen.setPenColor(opticalSensor.hue());
+    Brain.Screen.setFillColor(opticalSensor.color());
+    
+    Brain.Screen.drawCircle(120, 120, 20);
+
+
+    Brain.Screen.setPenColor(white);
 
     //Brain.Screen.setCursor(3, 7);
     //Brain.Screen.print(yPosGlobal);
@@ -194,21 +201,35 @@ int drawField () {
     Brain.Screen.setCursor(3, 25);
     Brain.Screen.print("Y: %f", globalY);
 
-    Brain.Screen.setCursor(7, 25);
-    Brain.Screen.print("Joy Stick Axis 1: %f", Controller1.Axis1.value());
-
-    Brain.Screen.setCursor(8, 25);
-    Brain.Screen.print("Joy Stick Axis 3: %f", Controller1.Axis3.value());
-
-    Brain.Screen.setCursor(9, 25);
-    Brain.Screen.print("Joy Stick Axis 4: %f", Controller1.Axis4.value());
-
-    Brain.Screen.setCursor(10, 25);
-    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel1.velocity(rpm));
-    Brain.Screen.setCursor(11, 25);
-    Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
-    Brain.Screen.setCursor(12, 25);
+    Brain.Screen.setCursor(4, 25);
+    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel.velocity(rpm));
+    Brain.Screen.setCursor(5, 25);
+    // Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
+    // Brain.Screen.setCursor(6, 25);
     Brain.Screen.print("Flywheel Voltage: %f", flyWheelSpeed);
+    Brain.Screen.setCursor(7, 25);
+    Brain.Screen.print("Sdw: %f", sidewaysRotation.position(degrees));
+    Brain.Screen.setCursor(8, 25);
+    Brain.Screen.print("Fwd: %f", forwardRotation.position(degrees));
+    Brain.Screen.setCursor(9, 25);
+    Brain.Screen.print("Back Distance %f", (distanceSensorBack.objectDistance(distanceUnits::cm) + 17) / 100);
+    Brain.Screen.setCursor(10, 25);
+    Brain.Screen.print("Right Distance %f", (distanceSensorRight.objectDistance(distanceUnits::cm) + 13) / 100);
+    Brain.Screen.setCursor(11, 25);
+    Brain.Screen.print("Left Distance %f", (distanceSensorLeft.objectDistance(distanceUnits::cm) + 16.8) / 100);
+
+
+    Controller1.Screen.clearScreen();
+    Controller1.Screen.setCursor(1,1);
+    Controller1.Screen.print("Field Oriented: %s", fieldOriented ? "On" : "Off");
+    Controller1.Screen.newLine();
+    Controller1.Screen.print("Fly Wheel Speed: %.3f", flyWheelSpeed);
+    Controller1.Screen.newLine();
+    if (correctingPosition == false) {
+      Controller1.Screen.print("PID %s", enablePID ? "Running" : "Off");
+    } else {
+      Controller2.Screen.print("Correcting Position: %s", correctingPosition ? "True" : "False");
+    }
 
 
     task::sleep(20);

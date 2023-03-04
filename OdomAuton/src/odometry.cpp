@@ -13,8 +13,8 @@ float trackingWheelRadius = 0.034925;
 // bool fieldOriented = false;
 
 #pragma region Odometry
-float globalX = 0.83;
-float globalY = 0.33;
+float globalX = 1.76; //0.83;
+float globalY = 0.19;//0.33;
 // float globalX = 0.0;
 // float globalY = 0.0;
 
@@ -24,10 +24,10 @@ float deltaGlobalY = 0;
 float deltaLocalX = 0;
 float deltaLocalY = 0;
 
-float currentAbsoluteOrientation = M_PI/2;
-float prevTheta = M_PI/2;
-// float currentAbsoluteOrientation = 0;
-// float prevTheta = 0;
+// float currentAbsoluteOrientation = M_PI/2;
+// float prevTheta = M_PI/2;
+float currentAbsoluteOrientation = 0;
+float prevTheta = 0;
 
 float deltaTheta = 0;
 
@@ -46,8 +46,6 @@ float totalDeltaFwdPos = 0;
 float totalDeltaSdwPos = 0;
 #pragma endregion Odometry
 #pragma endregion Variables
-
-
 
 int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
   while (true) {
@@ -83,8 +81,8 @@ int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
       //Calculate the changes in the X and Y values (METERS)
       //General equation is:
       //Distance = 2 * Radius * sin(deltaTheta / 2)
-      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) - 0.0025); //Measure Forward Tracking wheel Track Radius
-      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) + 0.065); //check if deltaSdwdist is negative when deltaTheta is positive, if so use + otherwise use - // before was + 0.065 for best results //Measure Sideways Track Radius
+      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) - 0.005); //Measure Forward Tracking wheel Track Radius
+      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) - 0.169); //check if deltaSdwdist is negative when deltaTheta is positive, if so use + otherwise use - // before was + 0.065 for best results //Measure Sideways Track Radius
       // Sideways motor value changes 3170 over 5 turns
       // forward value changes 7 over 5 turns 
     }
