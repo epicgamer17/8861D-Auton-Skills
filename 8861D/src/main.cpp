@@ -104,20 +104,20 @@ void autonomous(void) {
   // visionPickUpDisc();
   // wait(60, sec);
   // expansion.set(false);
-  driveTo(60, 72, 2500, 1);
-  waitUntil(enablePID == false);
-  turnTo(3*M_PI/2, 2500);
-  waitUntil(enablePID == false);
-  driveTo(60, 60, 2500, 1);
-  waitUntil(enablePID == false);
-  turnTo(0, 2500);
-  waitUntil(enablePID == false);
-  driveTo(72, 60, 2500, 1);
-  waitUntil(enablePID == false);
-  turnTo(M_PI/2, 2500);
-  waitUntil(enablePID == false);
-  driveTo(72, 72, 2500, 1);
-  waitUntil(enablePID == false);
+  // driveTo(60, 72, 2500, 1);
+  // waitUntil(enablePID == false);
+  // turnTo(3*M_PI/2, 2500);
+  // waitUntil(enablePID == false);
+  // driveTo(60, 60, 2500, 1);
+  // waitUntil(enablePID == false);
+  // turnTo(0, 2500);
+  // waitUntil(enablePID == false);
+  // driveTo(72, 60, 2500, 1);
+  // waitUntil(enablePID == false);
+  // turnTo(M_PI/2, 2500);
+  // waitUntil(enablePID == false);
+  // driveTo(72, 72, 2500, 1);
+  // waitUntil(enablePID == false);
 }
 
 //User Control

@@ -8,6 +8,9 @@ bool enablePID = true;
 bool resetEncoders = false;
 bool turningToPoint = false;
 
+float desiredX = 0;
+float desiredY = 0;
+
 float desiredTurnX = 0;
 float desiredTurnY = 0;
 float desiredHeading = 0;
