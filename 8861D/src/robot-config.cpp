@@ -21,6 +21,7 @@ motor midLeft = motor(PORT2, ratio6_1, true);
 motor midRight = motor(PORT10, ratio6_1, false);
 encoder sidewaysRotation = encoder(Brain.ThreeWirePort.C);
 encoder forwardRotation = encoder(Brain.ThreeWirePort.A);
+digital_out angleAdjuster = digital_out(Brain.ThreeWirePort.F);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

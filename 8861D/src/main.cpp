@@ -25,6 +25,7 @@
 // midRight             motor         10              
 // sidewaysRotation     encoder       C, D            
 // forwardRotation      encoder       A, B            
+// angleAdjuster        digital_out   F               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // Robot configuration code.
 #pragma endregion VEXcode Generated Robot Configuration
@@ -40,7 +41,7 @@ float tileLength = 0.4572; //  0.6096
 float wheelRadius = 0.041275;
 
 bool stopIntake = true;
-
+bool angleAdjusterBool = false;
 #pragma endregion Variables
 
 float ptToPtDistance (float x1, float y1, float x2, float y2) {
@@ -50,6 +51,11 @@ float ptToPtDistance (float x1, float y1, float x2, float y2) {
 
 void expand() {
   expansion.set(true);
+}
+
+void angleAdjust() {
+  angleAdjuster.set(!angleAdjusterBool);
+  angleAdjusterBool = !angleAdjusterBool;
 }
 
 //Pre Autonomous
@@ -102,22 +108,12 @@ void autonomous(void) {
   // task failSafeExpansion(autonExpand);
   task flyWheelTask(flyWheelPICTask);
   // visionPickUpDisc();
-  // wait(60, sec);
-  // expansion.set(false);
-  // driveTo(60, 72, 2500, 1);
-  // waitUntil(enablePID == false);
-  // turnTo(3*M_PI/2, 2500);
-  // waitUntil(enablePID == false);
-  // driveTo(60, 60, 2500, 1);
-  // waitUntil(enablePID == false);
-  // turnTo(0, 2500);
-  // waitUntil(enablePID == false);
-  // driveTo(72, 60, 2500, 1);
-  // waitUntil(enablePID == false);
-  // turnTo(M_PI/2, 2500);
-  // waitUntil(enablePID == false);
-  // driveTo(72, 72, 2500, 1);
-  // waitUntil(enablePID == false);
+  driveTo(12, 2500, 1);
+  waitUntil(enablePID==false);
+  driveTo(0, 2500, 1);
+  waitUntil(enablePID==false);
+  turnTo(0, 2500);
+  waitUntil(enablePID == false);
 }
 
 //User Control
@@ -129,8 +125,6 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   // task intakeTask(intakeControl);
   task flyWheelTask(flyWheelPICTask);
 
-  desiredX = globalX;
-  desiredY = globalY;
   enablePID = false;
 
   float leftSpeed = 0;
@@ -162,8 +156,7 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
 
     if (Controller1.ButtonL2.pressing()) 
     {
-      intake.spin(reverse, 40, velocityUnits::pct);    
-      intakeOn = false;
+      intake.spin(reverse, 90, velocityUnits::pct);
     }
     else 
     {
@@ -184,6 +177,8 @@ int main() {
   Controller1.ButtonL1.pressed(toggleIntake);
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
+  Controller1.ButtonB.pressed(angleAdjust);
+  Controller1.ButtonR2.pressed(singleIndex);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);

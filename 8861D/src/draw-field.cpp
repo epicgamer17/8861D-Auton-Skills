@@ -125,22 +125,22 @@ int drawField () {
     lineOffsetDesired1 = sqrt(2) * robotSize * cos(desiredHeading + M_PI_4);
     lineOffsetDesired2 = sqrt(2) * robotSize * cos(desiredHeading - M_PI_4);
     
-    //Draw Desired Location
-    drawDisc(desiredX, 240 + (-desiredY));
-    Brain.Screen.setPenColor(yellow);
-    Brain.Screen.drawLine(desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2, desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1);
-    Brain.Screen.drawLine(desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1, desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2);
-    Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
-    Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
+    // // //Draw Desired Location
+    // // drawDisc(desiredX, 240 + (-desiredY));
+    // // Brain.Screen.setPenColor(yellow);
+    // // Brain.Screen.drawLine(desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2, desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1);
+    // // Brain.Screen.drawLine(desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1, desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2);
+    // // Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
+    // // Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
 
-    //calculate where to place forward line
-    desiredHeadingX = 10 * cos(desiredHeading);
-    desiredHeadingY = 10 * sin(desiredHeading);
+    // // //calculate where to place forward line
+    // // desiredHeadingX = 10 * cos(desiredHeading);
+    // // desiredHeadingY = 10 * sin(desiredHeading);
     
-    Brain.Screen.setPenColor(yellow);
+    // Brain.Screen.setPenColor(yellow);
 
-    //Draw Heading Line
-    Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
+    // //Draw Heading Line
+    // Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
 
 
     // Brain.Screen.setPenColor(opticalSensor.hue());

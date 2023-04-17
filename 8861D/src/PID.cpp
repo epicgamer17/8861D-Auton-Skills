@@ -5,11 +5,9 @@ bool correctingPosition = false;
 
 #pragma region PID Varialbes
 bool enablePID = true;
+bool enableDrivePID = false;
 bool resetEncoders = false;
 bool turningToPoint = false;
-
-float desiredX = 0;
-float desiredY = 0;
 
 float desiredTurnX = 0;
 float desiredTurnY = 0;
@@ -32,8 +30,8 @@ double turnDerivative = 0;
 // double turnkD = 0.00;
 
 double turnkP = 3; //13
-double turnkI = 0.00; //1
-double turnkD = 0.00; // 10
+double turnkI = 1; //1
+double turnkD = 0.0; // 10
 /// T Ultimate = 0.3875s 
 /// K Ultimate = 73
 double turnPowerPID = 0;
@@ -46,9 +44,9 @@ double driveIntegralBound = 1.5; //converted inches to m (23880E had 1.5 inches)
 // double drivekI = 0.0;
 // double drivekD = 0.0;
 
-double drivekP = 1.5; //
-double drivekI = 0.02; //
-double drivekD = 10.0; //
+double drivekP = 0.6; //
+double drivekI = 0.3; //
+double drivekD = 0.0; //
 
 double drivePowerPID = 0;
 
@@ -74,18 +72,20 @@ float maxTurningSpeed = 1;
 #pragma endregion PID Variables
 
 void driveTo(float dFwd, float timeoutTime = 2500, float mSpeed = 1.0) {  // COULD TRY PID WITH VOLTAGE INSTEAD
-  desiredForwardValue = dFwd;
+  desiredForwardValue = dFwd + (-forwardRotation.position(degrees) * (M_PI/180));
   desiredHeading = currentAbsoluteOrientation;
   enablePID = true;
+  enableDrivePID = true;
   timeoutLength = timeoutTime;
   Brain.resetTimer();
   maxSpeed = mSpeed;
 }
 
 void turnTo(float dH, float timeoutTime = 2500) {
-  enablePID = true;
-  turningToPoint = false;
+  desiredHeading = dH;
 
+  enablePID = true;
+  turningToPoint = false;  
   timeoutLength = timeoutTime;
 
   Brain.resetTimer();
@@ -112,29 +112,32 @@ void drivePID() {
   
   //Error is equal to the total distance away from the target (uses distance formula with current position and target location)
   // driveError = sqrt(pow((globalX - desiredX), 2) + pow((globalY - desiredY), 2));
-  driveError = forwardRotation.position(degrees) - desiredForwardValue;
+  driveError = desiredForwardValue + (forwardRotation.position(degrees) * (M_PI/180));
   //only use integral if close enough to target
-  // if(fabs(driveError) < driveIntegralBound) {
-  //   driveIntegral += driveError;
-  // }
-  // else {
-  //   driveIntegral = 0;
-  // }
+  if(fabs(driveError) < driveIntegralBound) {
+    driveIntegral += driveError;
+  }
+  else {
+    driveIntegral = 0;
+  }
 
-  // //reset integral if we pass the target
-  // if(driveError > drivePrevError * 1.1) {
-  //   driveIntegral = 0;
-  // } 
+  //reset integral if we pass the target
+  if(driveError > drivePrevError * 1.1) {
+    driveIntegral = 0;
+  } 
 
-  // driveDerivative = driveError - drivePrevError;
+  driveDerivative = driveError - drivePrevError;
 
-  // drivePrevError = driveError;
+  drivePrevError = driveError;
 
   drivePowerPID = (driveError * drivekP + driveIntegral * drivekI + driveDerivative * drivekD);
 
   //Limit power output to 12V
   if(drivePowerPID > 12) {
     drivePowerPID = 12;
+  }
+  if(drivePowerPID < -12) {
+    drivePowerPID = -12;
   }
 
   // if(fabs(driveError) < driveMinError) {
@@ -197,7 +200,11 @@ int PIDTask() {
     
     if(enablePID) {
       //get PID values for driving and turning
-      drivePID();
+      if (enableDrivePID == true) {
+        drivePID();
+      } else {
+        drivePowerPID = 0;
+      }
       turnPID();
 
       //set power for each motor
@@ -211,14 +218,23 @@ int PIDTask() {
       midRight.spin(directionType::fwd, rightPower, voltageUnits::volt);
       backRight.spin(directionType::fwd, rightPower, voltageUnits::volt);
       
-      if(fabs(driveError) < driveMinError && fabs(turnError) < turnMinError) {
-        enablePID = false;
-        turningToPoint = false;
-        maxSpeed = 1;
+      if(fabs(turnError) < turnMinError) {
+        if (enableDrivePID == false) {
+          enablePID = false;
+          turningToPoint = false;
+          maxSpeed = 1;
+        } else if (fabs(driveError) < driveMinError) {
+          enablePID = false;
+          enableDrivePID = false;
+          turningToPoint = false;
+          maxSpeed = 1;
+
+        }
       }
 
       if(Brain.timer(timeUnits::msec) > timeoutLength) {
         enablePID = false;
+        enableDrivePID = false;
         turningToPoint = false;
         maxSpeed = 1;
       }

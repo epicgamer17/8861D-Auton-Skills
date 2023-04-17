@@ -3,8 +3,8 @@
 
 extern bool fieldOriented;
 extern bool correctingPosition;
-extern float desiredY;
-extern float desiredX;
+// extern float desiredY;
+// extern float desiredX;
 extern float desiredTurnY;
 extern float desiredTurnX;
 extern float desiredHeading;
@@ -14,7 +14,7 @@ extern bool userControl;
 extern bool turningToPoint;
 extern bool invertedTurning;
 
-extern void driveTo(float dX, float dY, float timeoutTime, float mSpeed);
+extern void driveTo(float dFwd, float timeoutTime, float mSpeed);
 
 extern void turnTo(float dH, float timeoutTime);
 

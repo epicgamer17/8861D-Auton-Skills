@@ -33,3 +33,10 @@ void toggleIntake() {
     intakeOn = false;
   }
 }
+
+void singleIndex() {
+  intakeOn = true;
+  intake.spinFor(500, msec, -90, velocityUnits::pct);
+  wait(500, msec);
+  intakeOn = false;
+}

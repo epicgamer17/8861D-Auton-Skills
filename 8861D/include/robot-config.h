@@ -16,6 +16,7 @@ extern motor midLeft;
 extern motor midRight;
 extern encoder sidewaysRotation;
 extern encoder forwardRotation;
+extern digital_out angleAdjuster;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
