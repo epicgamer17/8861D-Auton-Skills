@@ -1,6 +1,6 @@
 #include "flywheel.h"
 bool flyWheelOn = false;
-float flyWheelSpeed = 600; // 80 for pct, i am using 10 for voltage 
+float flyWheelSpeed = 430; // 80 for pct, i am using 10 for voltage 
 
 // float kI = 0.00025; //again, this is arbitrary
 float flyWheel1PowerTBH = 0;

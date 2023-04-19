@@ -164,13 +164,21 @@ int drawField () {
     Brain.Screen.setCursor(4, 25);
     Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel.velocity(rpm));
     Brain.Screen.setCursor(5, 25);
-    // Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
-    // Brain.Screen.setCursor(6, 25);
     Brain.Screen.print("Flywheel Voltage: %f", flyWheelSpeed);
     Brain.Screen.setCursor(7, 25);
     Brain.Screen.print("Sdw: %f", sidewaysRotation.position(degrees));
     Brain.Screen.setCursor(8, 25);
-    Brain.Screen.print("Fwd: %f", forwardRotation.position(degrees));
+
+    Brain.Screen.print("Fwd: %f", forwardRotation.position(degrees) * (2.75*M_PI)/360);
+    Brain.Screen.setCursor(9, 25);
+    Brain.Screen.print("Desired Fwd: %f", desiredForwardValue);
+    Brain.Screen.setCursor(10, 25);
+    Brain.Screen.print("Drive Powerd: %f", drivePowerPID);
+
+    Brain.Screen.setCursor(11, 25);
+    Brain.Screen.print("Desired Heading: %f", desiredHeading);
+    Brain.Screen.setCursor(12, 25);
+    Brain.Screen.print("Turn Error: %f", turnError);
 
     Controller1.Screen.clearScreen();
     Controller1.Screen.setCursor(1,1);

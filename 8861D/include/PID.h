@@ -8,6 +8,10 @@ extern bool correctingPosition;
 extern float desiredTurnY;
 extern float desiredTurnX;
 extern float desiredHeading;
+extern float desiredForwardValue;
+extern float driveError;
+extern double drivePowerPID;
+extern double turnError;
 
 extern bool enablePID;
 extern bool userControl;

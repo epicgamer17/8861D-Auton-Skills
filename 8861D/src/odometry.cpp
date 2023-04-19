@@ -2,8 +2,8 @@
 
 float trackingWheelRadius = 1.375;
 #pragma region Odometry
-float globalX = 72;
-float globalY = 72;
+float globalX = 37;
+float globalY = 13.5;
 
 float deltaGlobalX = 0;
 float deltaGlobalY = 0;

@@ -78,8 +78,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  inertialSensor.setRotation(-180, deg);
-  inertialSensor.setHeading(-180, deg);
+  inertialSensor.setRotation(-180, deg); //negative values
+  inertialSensor.setHeading(-180, deg); //negative values
 
 
 
@@ -106,14 +106,131 @@ void autonomous(void) {
   // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
   // task failSafeExpansion(autonExpand);
-  task flyWheelTask(flyWheelPICTask);
+  // task flyWheelTask(flyWheelPICTask); //comment out if not using toggleFlywheel();
   // visionPickUpDisc();
-  driveTo(12, 2500, 1);
-  waitUntil(enablePID==false);
-  driveTo(0, 2500, 1);
-  waitUntil(enablePID==false);
-  turnTo(0, 2500);
-  waitUntil(enablePID == false);
+
+  //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
+  //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
+
+  //TURN PID TEST
+  //   turnTo(3*M_PI/4,2500);
+
+  // waitUntil(enablePID==false);
+  // turnTo(M_PI/2,2500);
+  // // turnToPoint(20, 124, 5000);
+  // waitUntil(enablePID==false);
+  // turnTo(M_PI,2500);
+  // // turnToPoint(20, 124, 5000);
+  // waitUntil(enablePID==false);
+  // turnTo(0,2500);
+  // // turnToPoint(20, 124, 5000);
+  // waitUntil(enablePID==false);
+
+
+
+  // turnTo(M_PI/2, 5000); //this format turns to a global heading
+  // waitUntil(enablePID==false);  //this format turns to a global heading
+  // driveTo(12, 5000, 1.0); //this format uses relative to robot current positoin
+  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
+  // wait(1000, msec); //this format uses relative to robot current positoin
+  // driveTo(-12, 5000, 1.0); //this format uses relative to robot current positoin
+  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
+  //turnToPoint(24, 72, 5000); //this format uses the global position
+  //waitUntil(enablePID==false); //this format uses the global position
+  //driveTo(ptToPtDistance(globalX, globalY, 24, 72), 2500, 1.0); //this format uses the global position
+  //waitUntil(enablePID==false);//this format uses the global position
+  
+driveTo(-7, 1000, 1);
+waitUntil(enablePID==false);
+intake.spinFor(forward, 90, degrees);
+driveTo(7, 1000, 1);
+waitUntil(enablePID==false);
+turnTo(3*M_PI/2, 1200);
+waitUntil(enablePID==false);
+driveTo(51, 2500, 1);
+waitUntil(enablePID==false);
+turnTo(M_PI, 1200);
+waitUntil(enablePID==false);
+toggleIntake();
+driveTo(44.5, 2300, 1);
+waitUntil(enablePID==false);
+turnTo(3*M_PI/2, 1200);
+waitUntil(enablePID==false);
+flyWheel.spin(fwd, 11, voltageUnits::volt);
+driveTo(-21, 1500, 1);
+waitUntil(enablePID==false);
+toggleIntake();
+turnToPoint(27, 126, 1400);
+waitUntil(enablePID==false);
+singleIndex();
+wait(1400, msec);
+singleIndex();
+wait(1400, msec);
+singleIndex();
+flyWheel.stop();
+turnToPoint(59.8, 35.8, 1600);
+waitUntil(enablePID==false);
+toggleIntake();
+driveTo(20, 1500, 1);
+waitUntil(enablePID==false);
+wait(2000, msec);
+flyWheel.spin(fwd, 11, voltageUnits::volt);
+driveTo(-20, 1500, 1);
+waitUntil(enablePID==false);
+toggleIntake();
+turnToPoint(27, 126, 1600);
+waitUntil(enablePID==false);
+singleIndex();
+wait(1400, msec);
+singleIndex();
+wait(1400, msec);
+singleIndex();
+flyWheel.stop();
+  
+  //toggleIntake();
+  //driveTo(48, 3000, 0.5);
+  //waitUntil(enablePID==false);
+  //flyWheel.spin(fwd, 11, voltageUnits::volt);
+  //turnToPoint(27, 126, 2500);
+  //waitUntil(enablePID==false);
+  //toggleIntake();
+  //driveTo(12.7, 1400, 1);
+  //waitUntil(enablePID==false);
+  //singleIndex();
+  //wait(1400, msec);
+  //singleIndex();
+  //wait(1400, msec);
+  //singleIndex();
+  //flyWheel.stop();
+  //driveTo(-8.4, 1000, 1);
+  //waitUntil(enablePID==false);
+  //turnToPoint(105, 80.8, 1100);
+  //waitUntil(enablePID==false);
+  //toggleIntake();
+  //driveTo(32, 2000, 1);
+  //waitUntil(enablePID==false);
+  //driveTo(-12.2, 2000, 1);
+  //waitUntil(enablePID==false);
+  //turnToPoint(88, 79.8, 1100);
+  //waitUntil(enablePID==false);
+  //flyWheel.spin(fwd, 11, voltageUnits::volt);
+  //driveTo(11.25, 2000, 1);
+  //waitUntil(enablePID==false);
+  //wait(1000, msec);
+  //toggleIntake();
+  //singleIndex();
+  //wait(1400, msec);
+  //singleIndex();
+  //wait(1400, msec);
+  //singleIndex();
+  //flyWheel.stop();
+  //driveTo(-5, 1000, 1);
+  //waitUntil(enablePID==false);
+  //turnToPoint(130, 113.6, 1100);
+  //waitUntil(enablePID==false);
+  //driveTo(53.4, 2000, 1);
+  //waitUntil(enablePID==false);
+
 }
 
 //User Control
@@ -130,13 +247,10 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   float leftSpeed = 0;
   float rightSpeed = 0;
 
-  flyWheelSpeed = 480;
-  waitUntil(enablePID == false);
-
   while (true) {
     int joystickAxis3 = Controller1.Axis3.value();
     int joystickAxis4 = Controller1.Axis4.value();
-    int joystickAxis1 = Controller1.Axis1.value()  * 0.7;
+    int joystickAxis1 = Controller1.Axis1.value()  * 0.6;
   
     joystickAxis3 = abs(joystickAxis3) < 15 ? 0 : joystickAxis3;
     joystickAxis4 = abs(joystickAxis4) < 15 ? 0 : joystickAxis4;
@@ -154,9 +268,15 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     backLeft.spin(fwd, leftSpeed, voltageUnits::volt);
 
 
-    if (Controller1.ButtonL2.pressing()) 
+    if (Controller1.ButtonR2.pressing()) 
     {
       intake.spin(reverse, 90, velocityUnits::pct);
+      wait(400, msec);
+      intake.stop();
+      wait(300, msec);
+      intake.spin(reverse, 90, velocityUnits::pct);
+      wait(250, msec);
+
     }
     else 
     {
@@ -172,13 +292,13 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
 
 int main() {
   // Event Registration for Buttons
-  Controller1.ButtonLeft.pressed(expand);
-  Controller1.ButtonR1.pressed(toggleFlyWheel);
-  Controller1.ButtonL1.pressed(toggleIntake);
+  Controller1.ButtonY.pressed(expand);
+  Controller1.ButtonL1.pressed(toggleFlyWheel);
+  Controller1.ButtonA.pressed(toggleIntake);
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
   Controller1.ButtonB.pressed(angleAdjust);
-  Controller1.ButtonR2.pressed(singleIndex);
+  Controller1.ButtonR1.pressed(singleIndex);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
