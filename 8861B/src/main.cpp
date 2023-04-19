@@ -114,7 +114,33 @@ void autonomous(void) {
   //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
-  // Old Hard side
+  //EzySide
+  driveTo(-1, 100, 1);
+  waitUntil(enablePID==false);
+  intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
+  driveTo(13, 2000, 1);
+  waitUntil(enablePID==false);
+  //turnTo(aim, 1000);
+  Drive::LongShots(12, 360);
+  waitUntil(enablePID==false);
+  turnTo(0.46, 2000);
+  waitUntil(enablePID==false);
+  driveTo(27, 3000, 1);
+  waitUntil(enablePID==false);
+  intake.startRotateFor(fwd, -30000, deg, 600, velocityUnits::rpm);
+  driveTo(10, 2000, 1);
+  waitUntil(enablePID==false);
+  driveTo(-10, 2000, 1);
+  waitUntil(enablePID==false);
+  turnTo(M_PI_2, 2000);
+  waitUntil(enablePID==false);
+  driveTo(18, 2500, 1);
+  waitUntil(enablePID==false);
+  turnTo(2.1, 2000);
+  waitUntil(enablePID==false);
+  Drive::CloseShots(12, 720);
+
+// Old Hard side
   // driveTo(-21, 1000, 1.5);
   // waitUntil(enablePID==false);
   // turnTo(M_PI, 1000);
@@ -139,46 +165,6 @@ void autonomous(void) {
   // intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
   // driveTo(70, 2000, 1);
   // waitUntil(enablePID==false);
-
-  //Ezy Side
-  driveTo(-1, 100, 1);
-  waitUntil(enablePID==false);
-  intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
-  driveTo(13, 1000, 1);
-  waitUntil(enablePID==false);
-  //turnTo(aim, 1000);
-  Drive::LongShots(12, 360);
-  waitUntil(enablePID==false);
-  turnTo(0.46, 1000);
-  waitUntil(enablePID==false);
-  driveTo(27, 2000, 1);
-  waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -30000, deg, 600, velocityUnits::rpm);
-  driveTo(10, 1000, 1);
-  waitUntil(enablePID==false);
-  driveTo(-10, 1000, 1);
-  waitUntil(enablePID==false);
-  turnTo(M_PI_2, 1000);
-  waitUntil(enablePID==false);
-  driveTo(18, 1000, 1);
-  waitUntil(enablePID==false);
-  turnTo(2.1, 1000);
-  waitUntil(enablePID==false);
-  Drive::CloseShots(12, 720);
-
-
-
-
-
-
-  
-
-  
-
-
-
-
-
 
  //Other stuff 
 

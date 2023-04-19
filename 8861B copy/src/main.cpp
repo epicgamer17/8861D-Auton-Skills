@@ -114,24 +114,25 @@ void autonomous(void) {
   //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
+  //HardSide
   driveTo(27, 3000, 1);
   waitUntil(enablePID = false);
-  Drive::Shots(580, 800);
+  Drive::LongShots(12, 360);
   driveTo(-12.5, 3000, 1);
   waitUntil(enablePID = false);
   turnTo(5.49779, 2000);
   waitUntil(enablePID = false);
   intake.startRotateFor(fwd, 5000, deg, 100, velocityUnits::pct);
-  driveTo(65, 2000, 1);
+  driveTo(65, 3000, 1);
   waitUntil(enablePID = false);
   turnTo(M_PI/4, 2000);
   waitUntil(enablePID = false);
   driveTo(12, 2000, 1);
   waitUntil(enablePID = false);
-  Drive::Shots(540, 1000);
+  Drive::CloseShots(12, 540);
   turnTo(M_PI/4, 2000);
   waitUntil(enablePID = false);
-  driveTo(-100,2000,1);
+  driveTo(-100,3000,1);
   waitUntil(enablePID = false);
   intake.rotateFor(-600, deg, 600, velocityUnits::rpm);
 
