@@ -79,8 +79,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  inertialSensor.setRotation(-180, deg); //negative values
-  inertialSensor.setHeading(-180, deg); //negative values
+  inertialSensor.setRotation(-270, deg); //negative values
+  inertialSensor.setHeading(-270, deg); //negative values
 
 
 
@@ -113,20 +113,32 @@ void autonomous(void) {
   //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
-  //TURN PID TEST
-  turnTo(M_PI/2,5000);
+  
+  driveTo(-21, 1000, 1.5);
   waitUntil(enablePID==false);
-  turnTo(3*M_PI/2,5000);
+  turnTo(M_PI, 1000);
   waitUntil(enablePID==false);
-  turnTo(M_PI,5000);
+  driveTo(-7.5, 1000, 1.0);
   waitUntil(enablePID==false);
-  driveFwd(12, 5000, 1.0);
+  intake.spinFor(fwd, -630 ,deg);
+  driveTo(5, 1000, 1.5);
   waitUntil(enablePID==false);
-  driveFwd(-12, 5000, 1.0);
+  turnTo(M_3PI_4, 1000);
   waitUntil(enablePID==false);
-
-  driveTo(24.0, 24.0, 5000, 1.0);
+  intake.startRotateFor(fwd, -4000, deg, 100, velocityUnits::pct);
+  driveTo(7, 1000, 1);
   waitUntil(enablePID==false);
+  turnTo((5*M_PI)/6, 1000);
+  waitUntil(enablePID==false);
+ 
+  // turnTo(3*M_PI/2,5000);
+  // waitUntil(enablePID==false);
+  // turnTo(M_PI,5000);
+  // waitUntil(enablePID==false);
+  // driveTo(12, 5000, 1.0);
+  // waitUntil(enablePID==false);
+  // driveTo(-12, 5000, 1.0);
+  // waitUntil(enablePID==false);
 
   // turnTo(M_PI/2, 5000); //this format turns to a global heading
   // waitUntil(enablePID==false);  //this format turns to a global heading

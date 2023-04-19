@@ -11,8 +11,6 @@ bool turningToPoint = false;
 
 float desiredTurnX = 0;
 float desiredTurnY = 0;
-float desiredX = 0;
-float desiredY = 0;
 float desiredHeading = 0;
 float timeoutLength = 2500;
 float desiredForwardValue = 0;
@@ -38,7 +36,7 @@ double turnkD = 8; //8 //2. tune until it goes under by a little bit
 /// K Ultimate = 73
 double turnPowerPID = 0;
 
-double driveMinError = 0.1;
+double driveMinError = 0.5;
 
 double driveIntegralBound = 1.5; //converted inches to m (23880E had 1.5 inches)
 
@@ -73,27 +71,11 @@ float maxSpeed = 1; //60 max speed good for tank drive
 float maxTurningSpeed = 1;
 #pragma endregion PID Variables
 
-void driveFwd(float dFwd, float timeoutTime = 2500, float mSpeed = 1.0) {  // COULD TRY PID WITH VOLTAGE INSTEAD
+void driveTo(float dFwd, float timeoutTime = 2500, float mSpeed = 1.0) {  // COULD TRY PID WITH VOLTAGE INSTEAD
   desiredForwardValue = dFwd + (forwardRotation.position(degrees) * ((2.75*M_PI)/360));
   desiredHeading = currentAbsoluteOrientation;
   enablePID = true;
   enableDrivePID = true;
-  timeoutLength = timeoutTime;
-  Brain.resetTimer();
-  maxSpeed = mSpeed;
-}
-
-void driveTo(float dX, float dY, float timeoutTime = 2500, float mSpeed = 1.0) {  // COULD TRY PID WITH VOLTAGE INSTEAD
-  desiredForwardValue = sqrt((pow((dX - globalX),2) + pow((dY - globalY),2))) + (forwardRotation.position(degrees) * ((2.75*M_PI)/360));
-  desiredHeading = atan2(dX - globalY, dY - globalX);
-  desiredX = dX;
-  desiredY = dY;
-
-  desiredTurnX = dX;
-  desiredTurnY = dY;
-  enablePID = true;
-  enableDrivePID = true;
-  turningToPoint = true;
   timeoutLength = timeoutTime;
   Brain.resetTimer();
   maxSpeed = mSpeed;
@@ -235,19 +217,19 @@ int PIDTask() {
       midRight.spin(directionType::fwd, rightPower, voltageUnits::volt);
       backRight.spin(directionType::fwd, rightPower, voltageUnits::volt);
       
-      // if(fabs(turnError) < turnMinError) {
-      //   if (enableDrivePID == false) {
-      //     enablePID = false;
-      //     turningToPoint = false;
-      //     maxSpeed = 1;
-      //   } else if (fabs(driveError) < driveMinError) {
-      //     enablePID = false;
-      //     enableDrivePID = false;
-      //     turningToPoint = false;
-      //     maxSpeed = 1;
+      if(fabs(turnError) < turnMinError) {
+        if (enableDrivePID == false) {
+          enablePID = false;
+          turningToPoint = false;
+          maxSpeed = 1;
+        } else if (fabs(driveError) < driveMinError) {
+          enablePID = false;
+          enableDrivePID = false;
+          turningToPoint = false;
+          maxSpeed = 1;
 
-      //   }
-      // }
+        }
+      }
 
       if(Brain.timer(timeUnits::msec) > timeoutLength) {
         enablePID = false;

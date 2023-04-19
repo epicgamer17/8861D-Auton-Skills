@@ -19,9 +19,7 @@ extern bool userControl;
 extern bool turningToPoint;
 extern bool invertedTurning;
 
-extern void driveFwd(float dFwd, float timeoutTime, float mSpeed);
-
-extern void driveTo(float dX, float dY, float timeoutTime, float mSpeed);
+extern void driveTo(float dFwd, float timeoutTime, float mSpeed);
 
 extern void turnTo(float dH, float timeoutTime);
 

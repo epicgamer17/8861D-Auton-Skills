@@ -2,8 +2,8 @@
 
 float trackingWheelRadius = 1.375;
 #pragma region Odometry
-float globalX = 72;
-float globalY = 72;
+float globalX = 144 - 17;  //start position in inches
+float globalY = 144 - 57;  //start position in inches
 
 float deltaGlobalX = 0;
 float deltaGlobalY = 0;
@@ -11,8 +11,8 @@ float deltaGlobalY = 0;
 float deltaLocalX = 0;
 float deltaLocalY = 0;
 
-float currentAbsoluteOrientation = M_PI;
-float prevTheta = M_PI;
+float currentAbsoluteOrientation = 3*M_PI/2; //set start heading
+float prevTheta = 3*M_PI/2; //set start heading
 
 float deltaTheta = 0;
 
