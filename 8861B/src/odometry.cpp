@@ -65,8 +65,8 @@ int positionTracking() {  // COULD TRY PID WITH VOLTAGE INSTEAD
       //Calculate the changes in the X and Y values (METERS)
       //General equation is:
       //Distance = 2 * Radius * sin(deltaTheta / 2)
-      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) + 2.00); //-1.29 for 180 degree turn // -1.50 for 90 degree turn //Measure Forward Tracking wheel Track Radius
-      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) + 5.275); //-4.14 measured for 360 degree turn // -3.89 measured for 90 degree turn //check if deltaSdwdist is negative when deltaTheta is positive, if so use + otherwise use - // before was + 0.065 for best results //Measure Sideways Track Radius
+      deltaLocalY = 2 * sin(deltaTheta / 2.0) * ((deltaFwdDist / deltaTheta) + 2.2); //-1.29 for 180 degree turn // -1.50 for 90 degree turn //Measure Forward Tracking wheel Track Radius
+      deltaLocalX = 2 * sin(deltaTheta / 2.0) * ((deltaSdwDist / deltaTheta) + 5.5); //-4.14 measured for 360 degree turn // -3.89 measured for 90 degree turn //check if deltaSdwdist is negative when deltaTheta is positive, if so use + otherwise use - // before was + 0.065 for best results //Measure Sideways Track Radius
       // Sideways motor value changes 3170 over 5 turns
       // forward value changes 7 over 5 turns 
     }

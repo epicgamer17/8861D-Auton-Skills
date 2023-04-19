@@ -12,19 +12,21 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// backLeft             motor         8               
+// backLeft             motor         10              
 // frontLeft            motor         6               
-// backRight            motor         3               
+// backRight            motor         5               
 // frontRight           motor         1               
 // intake               motor         16              
-// expansion            digital_out   E               
+// expansion            digital_out   H               
 // Controller1          controller                    
 // inertialSensor       inertial      18              
 // flyWheel             motor         20              
-// midLeft              motor         10              
-// midRight             motor         5               
+// midLeft              motor         8               
+// midRight             motor         3               
 // sidewaysRotation     encoder       C, D            
 // forwardRotation      encoder       A, B            
+// angleAdjuster        digital_out   G               
+// Controller2          controller                    
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // Robot configuration code.
 #pragma endregion VEXcode Generated Robot Configuration
@@ -37,10 +39,10 @@ competition Competition;
 // Variables 
 float j = 0.0125/360; //Turning correction constant i think im not sure ask friend  
 float tileLength = 0.4572; //  0.6096
-float wheelRadius = 0.041275;
+// float wheelRadius = 0.041275;
 
 bool stopIntake = true;
-
+bool angleAdjusterBool = false;
 #pragma endregion Variables
 
 float ptToPtDistance (float x1, float y1, float x2, float y2) {
@@ -50,6 +52,11 @@ float ptToPtDistance (float x1, float y1, float x2, float y2) {
 
 void expand() {
   expansion.set(true);
+}
+
+void angleAdjust() {
+  angleAdjuster.set(!angleAdjusterBool);
+  angleAdjusterBool = !angleAdjusterBool;
 }
 
 //Pre Autonomous
@@ -72,8 +79,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  inertialSensor.setRotation(-180, deg);
-  inertialSensor.setHeading(-180, deg);
+  inertialSensor.setRotation(-180, deg); //negative values
+  inertialSensor.setHeading(-180, deg); //negative values
 
 
 
@@ -100,12 +107,70 @@ void autonomous(void) {
   // task purePursuit(PPSTask);
   // task intakeTask(intakeControl);
   // task failSafeExpansion(autonExpand);
-  task flyWheelTask(flyWheelPICTask);
+  // task flyWheelTask(flyWheelPICTask); //comment out if not using toggleFlywheel();
   // visionPickUpDisc();
-  // wait(60, sec);
-  // expansion.set(false);
-  driveTo(60, 72, M_PI, 2500, 1);
-  waitUntil(enablePID == false);
+
+  //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
+  //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
+
+  //TURN PID TEST
+  turnTo(M_PI/2,5000);
+  waitUntil(enablePID==false);
+  turnTo(3*M_PI/2,5000);
+  waitUntil(enablePID==false);
+  turnTo(M_PI,5000);
+  waitUntil(enablePID==false);
+  driveFwd(12, 5000, 1.0);
+  waitUntil(enablePID==false);
+  driveFwd(-12, 5000, 1.0);
+  waitUntil(enablePID==false);
+
+  driveTo(24.0, 24.0, 5000, 1.0);
+  waitUntil(enablePID==false);
+
+  // turnTo(M_PI/2, 5000); //this format turns to a global heading
+  // waitUntil(enablePID==false);  //this format turns to a global heading
+  // driveTo(12, 5000, 1.0); //this format uses relative to robot current positoin
+  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
+  // wait(1000, msec); //this format uses relative to robot current positoin
+  // driveTo(-12, 5000, 1.0); //this format uses relative to robot current positoin
+  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
+  //turnToPoint(24, 72, 5000); //this format uses the global position
+  //waitUntil(enablePID==false); //this format uses the global position
+  //driveTo(ptToPtDistance(globalX, globalY, 24, 72), 2500, 1.0); //this format uses the global position
+  //waitUntil(enablePID==false);//this format uses the global position
+  
+// driveTo(-7, 1000, 1);
+// waitUntil(enablePID==false);
+// intake.spinFor(forward, 90, degrees);
+// driveTo(7, 1000, 1);
+// waitUntil(enablePID==false);
+// turnTo(3*M_PI/2, 1200);
+// waitUntil(enablePID==false);
+// driveTo(51, 2500, 1);
+// waitUntil(enablePID==false);
+// turnTo(M_PI, 1200);
+// waitUntil(enablePID==false);
+// toggleIntake();
+// driveTo(44.5, 2500, 1);
+// waitUntil(enablePID==false);
+
+
+  
+  //toggleIntake();
+  //driveTo(48, 3000, 0.5);
+  //flyWheel.spin(fwd, 12, voltageUnits::volt);
+  //waitUntil(enablePID==false);
+  //turnToPoint(27, 126, 2500);
+  //waitUntil(enablePID==false);
+  //driveTo(10, 3200, 0.5);
+  //toggleIntake();
+  //waitUntil(enablePID==false);
+  //singleIndex();
+  //wait(1300, msec);
+  //singleIndex();
+  //wait(1400, msec);
+  //singleIndex();
 }
 
 //User Control
@@ -117,21 +182,15 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
   // task intakeTask(intakeControl);
   task flyWheelTask(flyWheelPICTask);
 
-  desiredX = globalX;
-  desiredY = globalY;
   enablePID = false;
-  userControl = true;
 
   float leftSpeed = 0;
   float rightSpeed = 0;
 
-  flyWheelSpeed = 480;
-  waitUntil(enablePID == false);
-
   while (true) {
     int joystickAxis3 = Controller1.Axis3.value();
     int joystickAxis4 = Controller1.Axis4.value();
-    int joystickAxis1 = Controller1.Axis1.value()  * 0.7;
+    int joystickAxis1 = Controller1.Axis1.value()  * 0.6;
   
     joystickAxis3 = abs(joystickAxis3) < 15 ? 0 : joystickAxis3;
     joystickAxis4 = abs(joystickAxis4) < 15 ? 0 : joystickAxis4;
@@ -149,10 +208,15 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
     backLeft.spin(fwd, leftSpeed, voltageUnits::volt);
 
 
-    if (Controller1.ButtonL2.pressing()) 
+    if (Controller1.ButtonR2.pressing()) 
     {
-      intake.spin(reverse, 40, velocityUnits::pct);    
-      intakeOn = false;
+      intake.spin(reverse, 90, velocityUnits::pct);
+      wait(360, msec);
+      intake.stop();
+      wait(300, msec);
+      intake.spin(reverse, 90, velocityUnits::pct);
+      wait(250, msec);
+
     }
     else 
     {
@@ -168,11 +232,13 @@ void usercontrol() { // Try also applying PID, also maybe PID on the flywheel??
 
 int main() {
   // Event Registration for Buttons
-  Controller1.ButtonLeft.pressed(expand);
-  Controller1.ButtonR1.pressed(toggleFlyWheel);
-  Controller1.ButtonL1.pressed(toggleIntake);
+  Controller1.ButtonY.pressed(expand);
+  Controller1.ButtonL1.pressed(toggleFlyWheel);
+  Controller1.ButtonA.pressed(toggleIntake);
   Controller1.ButtonUp.pressed(increaseFlyWheelSpeed);
   Controller1.ButtonDown.pressed(decreaseFlyWheelSpeed);
+  Controller1.ButtonB.pressed(angleAdjust);
+  Controller1.ButtonR1.pressed(singleIndex);
 
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);

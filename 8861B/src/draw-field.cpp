@@ -125,22 +125,22 @@ int drawField () {
     lineOffsetDesired1 = sqrt(2) * robotSize * cos(desiredHeading + M_PI_4);
     lineOffsetDesired2 = sqrt(2) * robotSize * cos(desiredHeading - M_PI_4);
     
-    //Draw Desired Location
-    drawDisc(desiredX, 240 + (-desiredY));
-    Brain.Screen.setPenColor(yellow);
-    Brain.Screen.drawLine(desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2, desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1);
-    Brain.Screen.drawLine(desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1, desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2);
-    Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
-    Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
+    // // //Draw Desired Location
+    // // drawDisc(desiredX, 240 + (-desiredY));
+    // // Brain.Screen.setPenColor(yellow);
+    // // Brain.Screen.drawLine(desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2, desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1);
+    // // Brain.Screen.drawLine(desiredX + lineOffsetDesired2, 240 + desiredY + lineOffsetDesired1, desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2);
+    // // Brain.Screen.drawLine(desiredX - lineOffsetDesired1, 240 + desiredY + lineOffsetDesired2, desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1);
+    // // Brain.Screen.drawLine(desiredX - lineOffsetDesired2, 240 + desiredY - lineOffsetDesired1, desiredX + lineOffsetDesired1, 240 + desiredY - lineOffsetDesired2);
 
-    //calculate where to place forward line
-    desiredHeadingX = 10 * cos(desiredHeading);
-    desiredHeadingY = 10 * sin(desiredHeading);
+    // // //calculate where to place forward line
+    // // desiredHeadingX = 10 * cos(desiredHeading);
+    // // desiredHeadingY = 10 * sin(desiredHeading);
     
-    Brain.Screen.setPenColor(yellow);
+    // Brain.Screen.setPenColor(yellow);
 
-    //Draw Heading Line
-    Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
+    // //Draw Heading Line
+    // Brain.Screen.drawLine(desiredX, 240 + desiredY, desiredX + desiredHeadingX, 240 + desiredY - desiredHeadingY);
 
 
     // Brain.Screen.setPenColor(opticalSensor.hue());
@@ -161,16 +161,26 @@ int drawField () {
     Brain.Screen.setCursor(3, 25);
     Brain.Screen.print("Y: %f", globalY);
 
+    // Brain.Screen.setCursor(4, 25);
+    // Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel.velocity(rpm));
+    // Brain.Screen.setCursor(5, 25);
+    // Brain.Screen.print("Flywheel Voltage: %f", flyWheelSpeed);
+    // Brain.Screen.setCursor(7, 25);
+    // Brain.Screen.print("Sdw: %f", sidewaysRotation.position(degrees));
+    // Brain.Screen.setCursor(8, 25);
+
+    Brain.Screen.print("Fwd: %f", forwardRotation.position(degrees) * (2.75*M_PI)/360);
     Brain.Screen.setCursor(4, 25);
-    Brain.Screen.print("Fly Wheel 1 Speed: %f", flyWheel.velocity(rpm));
+    Brain.Screen.print("Desired Fwd: %f", desiredForwardValue);
     Brain.Screen.setCursor(5, 25);
-    // Brain.Screen.print("Fly Wheel 2 Speed: %f", flyWheel2.velocity(rpm));
-    // Brain.Screen.setCursor(6, 25);
-    Brain.Screen.print("Flywheel Voltage: %f", flyWheelSpeed);
+    Brain.Screen.print("Drive Power: %f", drivePowerPID);
+
+    Brain.Screen.setCursor(6, 25);
+    Brain.Screen.print("Desired Heading: %f", desiredHeading);
     Brain.Screen.setCursor(7, 25);
-    Brain.Screen.print("Sdw: %f", sidewaysRotation.position(degrees));
+    Brain.Screen.print("Turn Error: %f", turnError);
     Brain.Screen.setCursor(8, 25);
-    Brain.Screen.print("Fwd: %f", forwardRotation.position(degrees));
+    Brain.Screen.print("Turn Power: %f", turnPowerPID);
 
     Controller1.Screen.clearScreen();
     Controller1.Screen.setCursor(1,1);
