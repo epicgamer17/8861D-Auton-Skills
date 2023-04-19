@@ -114,34 +114,74 @@ void autonomous(void) {
   //REMEMBER TO SET YOUR GLOBAL X AND GLOBAL Y START AND TO SET YOUR GLOBAL HEADING 
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
-  
-  driveTo(-21, 1000, 1.5);
-  waitUntil(enablePID==false);
-  turnTo(M_PI, 1000);
-  waitUntil(enablePID==false);
-  driveTo(-7.4, 1000, 1.0);
+  // Old Hard side
+  // driveTo(-21, 1000, 1.5);
+  // waitUntil(enablePID==false);
+  // turnTo(M_PI, 1000);
+  // waitUntil(enablePID==false);
+  // driveTo(-7.4, 1000, 1.0);
+  // waitUntil(enablePID==false);
+  // intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
+  // driveTo(5, 1000, 1.5);
+  // waitUntil(enablePID==false);
+  // turnTo(2.38, 1000);
+  // waitUntil(enablePID==false);
+  // intake.startRotateFor(fwd, -3000, deg, 600, velocityUnits::rpm);
+  // driveTo(8, 1000, 1);
+  // waitUntil(enablePID==false);
+  // turnTo(2.8, 2000);
+  // waitUntil(enablePID==false);
+  // Drive::Shots(12, 1420);
+  // driveTo(-8, 1000, 1);
+  // waitUntil(enablePID==false);
+  // turnTo(4.01426, 1420);
+  // waitUntil(enablePID==false);
+  // intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
+  // driveTo(70, 2000, 1);
+  // waitUntil(enablePID==false);
+
+  //Ezy Side
+  driveTo(-1, 100, 1);
   waitUntil(enablePID==false);
   intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
-  driveTo(5, 1000, 1.5);
+  driveTo(13, 1000, 1);
   waitUntil(enablePID==false);
-  turnTo(2.38, 1000);
+  //turnTo(aim, 1000);
+  Drive::LongShots(12, 360);
   waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -3000, deg, 600, velocityUnits::rpm);
-  driveTo(8, 1000, 1);
+  turnTo(0.46, 1000);
   waitUntil(enablePID==false);
-  turnTo(2.8, 2000);
+  driveTo(27, 2000, 1);
   waitUntil(enablePID==false);
-  Drive::Shots(12, 1420);
-  driveTo(-8, 1000, 1);
+  intake.startRotateFor(fwd, -30000, deg, 600, velocityUnits::rpm);
+  driveTo(10, 1000, 1);
   waitUntil(enablePID==false);
-  turnTo(4.01426, 1420);
+  driveTo(-10, 1000, 1);
   waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
-  driveTo(70, 2000, 1);
+  turnTo(M_PI_2, 1000);
   waitUntil(enablePID==false);
+  driveTo(18, 1000, 1);
+  waitUntil(enablePID==false);
+  turnTo(2.1, 1000);
+  waitUntil(enablePID==false);
+  Drive::CloseShots(12, 720);
 
 
- 
+
+
+
+
+  
+
+  
+
+
+
+
+
+
+ //Other stuff 
+
   // turnTo(3*M_PI/2,5000);
   // waitUntil(enablePID==false);
   // turnTo(M_PI,5000);
@@ -177,8 +217,6 @@ void autonomous(void) {
 // toggleIntake();
 // driveTo(44.5, 2500, 1);
 // waitUntil(enablePID==false);
-
-
   
   //toggleIntake();
   //driveTo(48, 3000, 0.5);

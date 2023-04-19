@@ -109,7 +109,7 @@ void Drive::Inroll(int x){
 }
 
 
-void Drive::Shots(int spd, int deg){
+void Drive::LongShots(int spd, int deg){
   intake.resetRotation();
   while(1){
    if ((intake.rotation(rotationUnits::deg)) >= deg){
@@ -119,10 +119,10 @@ void Drive::Shots(int spd, int deg){
   }
   else{
     flyWheel.spin(fwd,spd,volt);
-    if(flyWheel.velocity(rpm)>580){
+    if(flyWheel.velocity(rpm)>570){
       wait(0.5,sec);
       intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
-      waitUntil(flyWheel.velocity(rpm)>580);
+      waitUntil(flyWheel.velocity(rpm)>570);
       intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
     }
   } 
@@ -130,6 +130,28 @@ void Drive::Shots(int spd, int deg){
   }
  
 }
+void Drive::CloseShots(int spd, int deg){
+  intake.resetRotation();
+  while(1){
+   if ((intake.rotation(rotationUnits::deg)) >= deg){
+    flyWheel.stop();
+    intake.stop();
+    break;
+  }
+  else{
+    flyWheel.spin(fwd,spd,volt);
+    if(flyWheel.velocity(rpm)>530){
+      wait(0.5,sec);
+      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
+      waitUntil(flyWheel.velocity(rpm)>530);
+      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
+    }
+  } 
+  wait(5,msec);
+  }
+ 
+}
+
 extern bool flappytog = false;
 
 void Drive::flappy(){
