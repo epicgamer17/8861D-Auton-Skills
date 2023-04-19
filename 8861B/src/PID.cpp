@@ -186,9 +186,9 @@ void turnPID() {
     turnPowerPID = 12;
   }
 
-  // if(fabs(turnError) < turnMinError) {
-  //   turnPowerPID = 0;
-  // }
+  if(fabs(turnError) < turnMinError) {
+     turnPowerPID = 0;
+  }
 }
 
 /* CHASSIS CONTROL TASK */

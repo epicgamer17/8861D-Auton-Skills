@@ -6,6 +6,7 @@
 #include "PPS.h"
 #include "intake.h"
 #include "flywheel.h"
+#include "drive.h"
 // #include "IMUPositionTracking.h"
 
 
@@ -17,7 +18,7 @@
 // backRight            motor         5               
 // frontRight           motor         1               
 // intake               motor         16              
-// expansion            digital_out   H               
+// string               digital_out   H               
 // Controller1          controller                    
 // inertialSensor       inertial      18              
 // flyWheel             motor         20              
@@ -51,7 +52,7 @@ float ptToPtDistance (float x1, float y1, float x2, float y2) {
 }
 
 void expand() {
-  expansion.set(true);
+  string.set(true);
 }
 
 void angleAdjust() {
@@ -61,7 +62,7 @@ void angleAdjust() {
 
 //Pre Autonomous
 void pre_auton() {
-  expansion.set(false);
+  string.set(false);
   vexcodeInit();
   
   sidewaysRotation.resetRotation();
@@ -118,18 +119,28 @@ void autonomous(void) {
   waitUntil(enablePID==false);
   turnTo(M_PI, 1000);
   waitUntil(enablePID==false);
-  driveTo(-7.5, 1000, 1.0);
+  driveTo(-7.4, 1000, 1.0);
   waitUntil(enablePID==false);
-  intake.spinFor(fwd, -630 ,deg);
+  intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
   driveTo(5, 1000, 1.5);
   waitUntil(enablePID==false);
-  turnTo(M_3PI_4, 1000);
+  turnTo(2.38, 1000);
   waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -4000, deg, 100, velocityUnits::pct);
-  driveTo(7, 1000, 1);
+  intake.startRotateFor(fwd, -3000, deg, 600, velocityUnits::rpm);
+  driveTo(8, 1000, 1);
   waitUntil(enablePID==false);
-  turnTo((5*M_PI)/6, 1000);
+  turnTo(2.8, 2000);
   waitUntil(enablePID==false);
+  Drive::Shots(12, 1420);
+  driveTo(-8, 1000, 1);
+  waitUntil(enablePID==false);
+  turnTo(4.01426, 1420);
+  waitUntil(enablePID==false);
+  intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
+  driveTo(70, 2000, 1);
+  waitUntil(enablePID==false);
+
+
  
   // turnTo(3*M_PI/2,5000);
   // waitUntil(enablePID==false);

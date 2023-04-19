@@ -8,7 +8,7 @@ extern motor frontLeft;
 extern motor backRight;
 extern motor frontRight;
 extern motor intake;
-extern digital_out expansion;
+extern digital_out string;
 extern controller Controller1;
 extern inertial inertialSensor;
 extern motor flyWheel;
