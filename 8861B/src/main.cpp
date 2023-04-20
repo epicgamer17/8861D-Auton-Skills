@@ -80,8 +80,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  inertialSensor.setRotation(-270, deg); //negative values
-  inertialSensor.setHeading(-270, deg); //negative values
+  inertialSensor.setRotation(-90, deg); //negative values
+  inertialSensor.setHeading(-90, deg); //negative values
 
 
 
@@ -115,79 +115,76 @@ void autonomous(void) {
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
   //EzySide
-  driveTo(-1, 100, 1);
+  driveTo(-3.9, 1000, 3);
   waitUntil(enablePID==false);
-  intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
-  driveTo(13, 2000, 1);
+  intake.spinFor(fwd, -570 ,deg, 600, velocityUnits::rpm);
+  wait(100, msec);
+  driveTo(8, 500, 1);
   waitUntil(enablePID==false);
-  //turnTo(aim, 1000);
-  Drive::LongShots(12, 360);
+  Drive::Shots(580, 360);
+  turnTo(0.6, 700);
   waitUntil(enablePID==false);
-  turnTo(0.46, 2000);
+  intake.startRotateFor(fwd, -12500, deg, 600, velocityUnits::rpm);
+  driveTo(28, 1200, 1.25);
   waitUntil(enablePID==false);
-  driveTo(27, 3000, 1);
+  driveTo(22, 1500, 0.3);
   waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -30000, deg, 600, velocityUnits::rpm);
-  driveTo(10, 2000, 1);
+  turnTo(M_PI_2, 700);
   waitUntil(enablePID==false);
-  driveTo(-10, 2000, 1);
+  driveTo(12, 2500, 1);
   waitUntil(enablePID==false);
-  turnTo(M_PI_2, 2000);
+  turnTo(1.9, 2000);
   waitUntil(enablePID==false);
-  driveTo(18, 2500, 1);
-  waitUntil(enablePID==false);
-  turnTo(2.1, 2000);
-  waitUntil(enablePID==false);
-  Drive::CloseShots(12, 720);
+  Drive::Shots(580, 720);
 
 // Old Hard side
-  // driveTo(-21, 1000, 1.5);
-  // waitUntil(enablePID==false);
-  // turnTo(M_PI, 1000);
-  // waitUntil(enablePID==false);
-  // driveTo(-7.4, 1000, 1.0);
-  // waitUntil(enablePID==false);
-  // intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
-  // driveTo(5, 1000, 1.5);
-  // waitUntil(enablePID==false);
-  // turnTo(2.38, 1000);
-  // waitUntil(enablePID==false);
-  // intake.startRotateFor(fwd, -3000, deg, 600, velocityUnits::rpm);
-  // driveTo(8, 1000, 1);
-  // waitUntil(enablePID==false);
-  // turnTo(2.8, 2000);
-  // waitUntil(enablePID==false);
-  // Drive::Shots(12, 1420);
-  // driveTo(-8, 1000, 1);
-  // waitUntil(enablePID==false);
-  // turnTo(4.01426, 1420);
-  // waitUntil(enablePID==false);
-  // intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
-  // driveTo(70, 2000, 1);
-  // waitUntil(enablePID==false);
+//   driveTo(-21, 1000, 1.5);
+//   waitUntil(enablePID==false);
+//   turnTo(M_PI, 1000);
+//   waitUntil(enablePID==false);
+//   driveTo(-7.4, 1000, 1.0);
+//   waitUntil(enablePID==false);
+//   intake.spinFor(fwd, -600 ,deg, 600, velocityUnits::rpm);
+//   driveTo(5, 1000, 1.5);
+//   waitUntil(enablePID==false);
+//   turnTo(2.38, 1000);
+//   waitUntil(enablePID==false);
+//   intake.startRotateFor(fwd, -3000, deg, 600, velocityUnits::rpm);
+//   driveTo(8, 1000, 1);
+//   waitUntil(enablePID==false);
+//   turnTo(2.8, 2000);
+//   waitUntil(enablePID==false);
+//   Drive::Shots(12, 1420);
+//   driveTo(-8, 1000, 1);
+//   waitUntil(enablePID==false);
+//   turnTo(4.01426, 1420);
+//   waitUntil(enablePID==false);
+//   intake.startRotateFor(fwd, -54200, deg, 600, velocityUnits::rpm);
+//   driveTo(70, 2000, 1);
+//   waitUntil(enablePID==false);
 
- //Other stuff 
+//  Other stuff 
 
-  // turnTo(3*M_PI/2,5000);
-  // waitUntil(enablePID==false);
-  // turnTo(M_PI,5000);
-  // waitUntil(enablePID==false);
-  // driveTo(12, 5000, 1.0);
-  // waitUntil(enablePID==false);
-  // driveTo(-12, 5000, 1.0);
-  // waitUntil(enablePID==false);
+//   turnTo(3*M_PI/2,5000);
+//   waitUntil(enablePID==false);
+//   turnTo(M_PI,5000);
+//   waitUntil(enablePID==false);
+//   driveTo(12, 5000, 1.0);
+//   waitUntil(enablePID==false);
+//   driveTo(-12, 5000, 1.0);
+//   waitUntil(enablePID==false);
 
-  // turnTo(M_PI/2, 5000); //this format turns to a global heading
-  // waitUntil(enablePID==false);  //this format turns to a global heading
-  // driveTo(12, 5000, 1.0); //this format uses relative to robot current positoin
-  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
-  // wait(1000, msec); //this format uses relative to robot current positoin
-  // driveTo(-12, 5000, 1.0); //this format uses relative to robot current positoin
-  // waitUntil(enablePID==false); //this format uses relative to robot current positoin
-  //turnToPoint(24, 72, 5000); //this format uses the global position
-  //waitUntil(enablePID==false); //this format uses the global position
-  //driveTo(ptToPtDistance(globalX, globalY, 24, 72), 2500, 1.0); //this format uses the global position
-  //waitUntil(enablePID==false);//this format uses the global position
+//   turnTo(M_PI/2, 5000); //this format turns to a global heading
+//   waitUntil(enablePID==false);  //this format turns to a global heading
+//   driveTo(12, 5000, 1.0); //this format uses relative to robot current positoin
+//   waitUntil(enablePID==false); //this format uses relative to robot current positoin
+//   wait(1000, msec); //this format uses relative to robot current positoin
+//   driveTo(-12, 5000, 1.0); //this format uses relative to robot current positoin
+//   waitUntil(enablePID==false); //this format uses relative to robot current positoin
+//   turnToPoint(24, 72, 5000); //this format uses the global position
+//   waitUntil(enablePID==false); //this format uses the global position
+//   driveTo(ptToPtDistance(globalX, globalY, 24, 72), 2500, 1.0); //this format uses the global position
+//   waitUntil(enablePID==false);//this format uses the global position
   
 // driveTo(-7, 1000, 1);
 // waitUntil(enablePID==false);
@@ -204,20 +201,20 @@ void autonomous(void) {
 // driveTo(44.5, 2500, 1);
 // waitUntil(enablePID==false);
   
-  //toggleIntake();
-  //driveTo(48, 3000, 0.5);
-  //flyWheel.spin(fwd, 12, voltageUnits::volt);
-  //waitUntil(enablePID==false);
-  //turnToPoint(27, 126, 2500);
-  //waitUntil(enablePID==false);
-  //driveTo(10, 3200, 0.5);
-  //toggleIntake();
-  //waitUntil(enablePID==false);
-  //singleIndex();
-  //wait(1300, msec);
-  //singleIndex();
-  //wait(1400, msec);
-  //singleIndex();
+//   toggleIntake();
+//   driveTo(48, 3000, 0.5);
+//   flyWheel.spin(fwd, 12, voltageUnits::volt);
+//   waitUntil(enablePID==false);
+//   turnToPoint(27, 126, 2500);
+//   waitUntil(enablePID==false);
+//   driveTo(10, 3200, 0.5);
+//   toggleIntake();
+//   waitUntil(enablePID==false);
+//   singleIndex();
+//   wait(1300, msec);
+//   singleIndex();
+//   wait(1400, msec);
+//   singleIndex();
 }
 
 //User Control
