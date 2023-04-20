@@ -18,7 +18,7 @@ float desiredForwardValue = 0;
 double turnError = 0;
 double turnPrevError = 0;
 
-double turnMinError = 0.05;
+double turnMinError = 0.01;
 
 double turnIntegral = 0;
 double turnIntegralBound = 0.27; //i think the units are radians so no need to convert to radians 
@@ -36,7 +36,7 @@ double turnkD = 8; //8 //2. tune until it goes under by a little bit
 /// K Ultimate = 73
 double turnPowerPID = 0;
 
-double driveMinError = 0.02;
+double driveMinError = 0.5;
 
 double driveIntegralBound = 1.5; //converted inches to m (23880E had 1.5 inches)
 
@@ -87,7 +87,6 @@ void turnTo(float dH, float timeoutTime = 2500) {
   enablePID = true;
   turningToPoint = false;  
   timeoutLength = timeoutTime;
-  printf("Turn error:: %f", turnError);
 
   Brain.resetTimer();
 }

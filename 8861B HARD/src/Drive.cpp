@@ -12,7 +12,11 @@ void Drive::SetVoltage(double left, double right){
   backRight.spin(fwd,right,volt);
 }
 
+float leftSpeed = 0;
+  float rightSpeed = 0;
+
 void Drive::RobotOriented(){
+  
   double Turn = 0;
   double Power = 0;
 
@@ -29,10 +33,18 @@ void Drive::RobotOriented(){
    Power = 0;
   }
   
-  double Left = Turn + Power;
-  double Right = Turn - Power;
+  double Left = Turn - Power;
+  double Right = Turn + Power;
 
-  Drive::SetVoltage(Left, Right);
+  frontRight.spin(fwd, Right, voltageUnits::volt);
+  midRight.spin(fwd, Right, voltageUnits::volt);
+  backRight.spin(fwd, Right, voltageUnits::volt);
+    
+  frontLeft.spin(reverse, Left, voltageUnits::volt);
+  midLeft.spin(reverse, Left, voltageUnits::volt);
+  backLeft.spin(reverse, Left, voltageUnits::volt);
+
+
 
 }
 
@@ -40,18 +52,18 @@ void Drive::expansion(){
   Brain.resetTimer();
   while (1){
     if ((Brain.timer(seconds)>1) & (Controller2.ButtonUp.pressing() || (Controller1.ButtonUp.pressing()))){
-   
+   string.set(true);
    break;
   }
   else {
-    string.set(true);
+    string.set(false);
   }
   this_thread::sleep_for(30);
   }
 }
 int toggle = 0;
 void Drive::Intake(){
-  if (Controller1.ButtonL2.pressing() && (flyWheel.velocity(rpm) > 100)) {
+  if (Controller1.ButtonL2.pressing() && (flyWheel.velocity(rpm) > 0)) {
     intake.spin(fwd,12,volt);
   }
   else if (Controller1.ButtonR2.pressing()){
@@ -109,7 +121,7 @@ void Drive::Inroll(int x){
 }
 
 
-void Drive::LongShots(int spd, int deg){
+void Drive::Shots(int spd, int deg, int indexdeg){
   intake.resetRotation();
   while(1){
    if ((intake.rotation(rotationUnits::deg)) >= deg){
@@ -118,40 +130,15 @@ void Drive::LongShots(int spd, int deg){
     break;
   }
   else{
-    flyWheel.spin(fwd,spd,volt);
-    if(flyWheel.velocity(rpm)>570){
-      wait(0.5,sec);
-      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
-      waitUntil(flyWheel.velocity(rpm)>570);
-      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
+    flyWheel.spin(fwd,12,volt);
+    if(flyWheel.velocity(rpm)>spd){
+      intake.spinFor(directionType::fwd, indexdeg, rotationUnits::deg, 600,velocityUnits::rpm);
     }
   } 
   wait(5,msec);
   }
  
 }
-void Drive::CloseShots(int spd, int deg){
-  intake.resetRotation();
-  while(1){
-   if ((intake.rotation(rotationUnits::deg)) >= deg){
-    flyWheel.stop();
-    intake.stop();
-    break;
-  }
-  else{
-    flyWheel.spin(fwd,spd,volt);
-    if(flyWheel.velocity(rpm)>530){
-      wait(0.5,sec);
-      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
-      waitUntil(flyWheel.velocity(rpm)>530);
-      intake.spinFor(directionType::fwd, 180, rotationUnits::deg, 100,velocityUnits::pct);
-    }
-  } 
-  wait(5,msec);
-  }
- 
-}
-
 extern bool flappytog = false;
 
 void Drive::flappy(){
@@ -169,31 +156,30 @@ void Drive::flappy(){
   
 }
 
+extern float FlySpd = 10.75;
 
 int Drive::updateController2(){
   Controller2.Screen.clearScreen();
-  
-
   while (1){
 
     if (Controller2.ButtonX.pressing()){
-      highvoltage = true;
+      FlySpd = 12;
       
 
     }
     else if (Controller2.ButtonA.pressing()){
-    highvoltage = false;
+      FlySpd = 10.75;
       
     }
 
-    if (highvoltage){
       Controller2.Screen.setCursor(3,1);
-      Controller2.Screen.print("Highvoltage ::  ON");
+      Controller2.Screen.print("Flywheel voltage:: %f", FlySpd);
+  
+    if(togglefly){
+      flyWheel.spin(fwd,FlySpd,volt);
     }
-
-    else if (highvoltage == false){
-      Controller2.Screen.setCursor(3,1);
-      Controller2.Screen.print("Highvoltage :: OFF");
+    else{
+      flyWheel.stop();
     }
 
     if (flappytog){

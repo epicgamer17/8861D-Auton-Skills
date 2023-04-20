@@ -182,11 +182,6 @@ int drawField () {
     Brain.Screen.setCursor(8, 25);
     Brain.Screen.print("Turn Power: %f", turnPowerPID);
 
-    Controller1.Screen.clearScreen();
-    Controller1.Screen.setCursor(1,1);
-    Controller1.Screen.print("Fly Wheel Speed: %.3f", flyWheelSpeed);
-    Controller1.Screen.newLine();
-
 
     task::sleep(20);
   }
