@@ -125,14 +125,14 @@ void autonomous(void) {
   waitUntil(enablePID==false);
   Drive::Shots(600, 1400, 600);
   wait(100, msec);
-  turnTo(0.5, 700);
+  turnTo(0.45, 700);
   waitUntil(enablePID==false);
-  intake.startRotateFor(fwd, -442000, deg, 600, velocityUnits::rpm);
+  intake.startRotateFor(fwd, -4420000, deg, 600, velocityUnits::rpm);
   driveTo(26, 1200, 1.5);
   waitUntil(enablePID==false);
-  driveTo(29, 1400, 0.3);
+  driveTo(28, 3000, 0.15);
   waitUntil(enablePID==false);
-  flyWheel.startRotateFor(fwd,100000,deg,580,velocityUnits::rpm);
+  flyWheel.startRotateFor(fwd,1000000,deg,570,velocityUnits::rpm);
   turnTo(M_PI_2, 500);
   waitUntil(enablePID==false);
   //turnTo(1.9, 2000);
@@ -142,7 +142,8 @@ void autonomous(void) {
   waitUntil(enablePID==false);
   driveTo(3, 1000, 1);
   waitUntil(enablePID==false);
-  Drive::Shots(570, 100000, 690);
+  intake.stop();
+  Drive::Shots(570, 100000, 420);
 
 // Old Hard side
 //   driveTo(-21, 1000, 1.5);
