@@ -114,28 +114,26 @@ void autonomous(void) {
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
   //EzySide
-  driveTo(-4, 1000, 3);
+  driveTo(-3.8, 1000, 3);
   waitUntil(enablePID==false);
-  intake.spinFor(fwd, -625 ,deg, 600, velocityUnits::rpm);
-  wait(100, msec);
+  intake.spinFor(fwd, -620 ,deg, 600, velocityUnits::rpm);
+  //wait(100, msec);
+  flyWheel.startRotateFor(fwd, 7200,deg, 100, velocityUnits::pct);
   driveTo(9, 500, 1);
   waitUntil(enablePID==false);
   flyWheel.startRotateFor(fwd,100000,deg,100,velocityUnits::pct);
-  turnTo(1.45, 700);
+  turnTo(1.425, 700);
   waitUntil(enablePID==false);
   Drive::Shots(600, 1400, 600);
   wait(100, msec);
   turnTo(0.45, 700);
   waitUntil(enablePID==false);
   intake.startRotateFor(fwd, -4420000, deg, 600, velocityUnits::rpm);
-  driveTo(26, 1200, 1.5);
+  driveTo(26, 1200, 1.8);
   waitUntil(enablePID==false);
-  driveTo(28, 3000, 0.15);
+  driveTo(28, 3000, 0.18);
   waitUntil(enablePID==false);
-  flyWheel.startRotateFor(fwd,1000000,deg,570,velocityUnits::rpm);
-  turnTo(M_PI_2, 500);
-  waitUntil(enablePID==false);
-  //turnTo(1.9, 2000);
+  flyWheel.startRotateFor(fwd,1000000,deg,550,velocityUnits::rpm);
   turnToPoint(20, 124, 2000);
   waitUntil(enablePID==false);
   turnTo(currentAbsoluteOrientation - M_PI/16, 2000);
@@ -143,7 +141,7 @@ void autonomous(void) {
   driveTo(3, 1000, 1);
   waitUntil(enablePID==false);
   intake.stop();
-  Drive::Shots(570, 100000, 420);
+  Drive::Shots(560, 100000, 420);
 
 // Old Hard side
 //   driveTo(-21, 1000, 1.5);
