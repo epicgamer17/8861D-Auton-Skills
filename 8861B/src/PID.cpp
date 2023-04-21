@@ -140,7 +140,7 @@ void drivePID() {
   }
 
 
-  printf("drive power:: %f", drivePowerPID);
+  
   // if(fabs(driveError) < driveMinError) {
   //   drivePowerPID = 0;
   // }

@@ -11,8 +11,8 @@ float deltaGlobalY = 0;
 float deltaLocalX = 0;
 float deltaLocalY = 0;
 
-float currentAbsoluteOrientation = 5*M_PI/6; //set start heading
-float prevTheta = 5*M_PI/6; //set start heading
+float currentAbsoluteOrientation = M_PI; //set start heading
+float prevTheta = M_PI; //set start heading
 
 float deltaTheta = 0;
 

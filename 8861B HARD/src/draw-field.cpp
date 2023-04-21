@@ -182,7 +182,6 @@ int drawField () {
     Brain.Screen.setCursor(8, 25);
     Brain.Screen.print("Turn Power: %f", turnPowerPID);
 
-
     task::sleep(20);
   }
 

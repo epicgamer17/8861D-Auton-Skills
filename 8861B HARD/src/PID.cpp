@@ -139,6 +139,8 @@ void drivePID() {
     drivePowerPID = -12;
   }
 
+
+  
   // if(fabs(driveError) < driveMinError) {
   //   drivePowerPID = 0;
   // }
@@ -189,6 +191,8 @@ void turnPID() {
   if(fabs(turnError) < turnMinError) {
      turnPowerPID = 0;
   }
+
+  printf("desired power %f", turnPowerPID);
 }
 
 /* CHASSIS CONTROL TASK */

@@ -79,8 +79,8 @@ void pre_auton() {
     task::sleep(100);
   }
   ////DONT FORGET TO SET THE INERTIAL HEADING TO THE START HEADING 
-  inertialSensor.setRotation(-150, deg); //negative values
-  inertialSensor.setHeading(-150, deg); //negative values
+  inertialSensor.setRotation(-180, deg); //negative values
+  inertialSensor.setHeading(-180, deg); //negative values
 
 
 
@@ -114,28 +114,47 @@ void autonomous(void) {
   //GLOBAL HEADING NEEDS TO BE SET IN BOTH odometry.h AND here in the main in the preautonomous
 
   //EzySide
-  // driveTo(-4, 1000, 3);
-  // waitUntil(enablePID==false);
-  // intake.spinFor(fwd, -625 ,deg, 600, velocityUnits::rpm);
-  // wait(100, msec);
-  // driveTo(9, 500, 1);
-  // waitUntil(enablePID==false);
-  // flyWheel.startRotateFor(fwd,100000,deg,100,velocityUnits::pct);
-  // turnTo(1.45, 700);
-  // waitUntil(enablePID==false);
+
+  
+  
+  //driveTo(20, 1000, 1);
+  //waitUntil(enablePID==false);
+  turnTo(2.7, 700);
+  waitUntil(enablePID==false);
+  driveTo(20,2000,1);
+  
+  Drive::Shots(600, 1308, 690);
+  // driveTo(-12.5, 3000, 1);
+  // waitUntil(enablePID == false);
+  // turnTo(5.49779, 2000); 
+  // waitUntil(enablePID == false); 
+  // intake.startRotateFor(fwd, 5000, deg, 100, velocityUnits::pct);
+  // driveTo(65, 3000, 1);
+  // waitUntil(enablePID == false);
+  // turnTo(M_PI/4, 2000);
+  // waitUntil(enablePID == false);
+  // driveTo(12, 2000, 1);
+  // waitUntil(enablePID == false);
+  // Drive::Shots(600, 540,690);
+  // turnTo(M_PI/4, 2000);
+  // waitUntil(enablePID == false);
+  // driveTo(-100,3000,1);
+  // waitUntil(enablePID == false);
+  // intake.rotateFor(-600, deg, 600, velocityUnits::rpm);
+
   // Drive::Shots(600, 1400, 600);
   // wait(100, msec);
   // turnTo(0.5, 700);
   // waitUntil(enablePID==false);
   // intake.startRotateFor(fwd, -442000, deg, 600, velocityUnits::rpm);
-  // driveTo(26, 1200, 1.0);
+  // driveTo(26, 1200, 1.5);
   // waitUntil(enablePID==false);
   // driveTo(29, 1400, 0.3);
   // waitUntil(enablePID==false);
   // flyWheel.startRotateFor(fwd,100000,deg,580,velocityUnits::rpm);
   // turnTo(M_PI_2, 500);
   // waitUntil(enablePID==false);
-  // //turnTo(1.9, 2000);
+  //turnTo(1.9, 2000);
   // turnToPoint(20, 124, 2000);
   // waitUntil(enablePID==false);
   // turnTo(currentAbsoluteOrientation - M_PI/16, 2000);
@@ -143,28 +162,6 @@ void autonomous(void) {
   // driveTo(3, 1000, 1);
   // waitUntil(enablePID==false);
   // Drive::Shots(570, 100000, 690);
-
-  driveTo(27, 3000, 1);
-  waitUntil(enablePID = false);
-  // Drive::Shots(600, 360,690);
-  // driveTo(-12.5, 3000, 1);
-  // waitUntil(enablePID = false);
-  // turnTo(5.49779, 2000);
-  // waitUntil(enablePID = false);
-  // intake.startRotateFor(fwd, 5000, deg, 100, velocityUnits::pct);
-  // driveTo(65, 3000, 1);
-  // waitUntil(enablePID = false);
-  // turnTo(M_PI/4, 2000);
-  // waitUntil(enablePID = false);
-  // driveTo(12, 2000, 1);
-  // waitUntil(enablePID = false);
-  // Drive::Shots(600, 540,690);
-  // turnTo(M_PI/4, 2000);
-  // waitUntil(enablePID = false);
-  // driveTo(-100,3000,1);
-  // waitUntil(enablePID = false);
-  // intake.rotateFor(-600, deg, 600, velocityUnits::rpm);
-
 
 // Old Hard side
 //   driveTo(-21, 1000, 1.5);
