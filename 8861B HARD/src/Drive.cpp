@@ -63,7 +63,7 @@ void Drive::expansion(){
 }
 int toggle = 0;
 void Drive::Intake(){
-  if (Controller1.ButtonL2.pressing() && (flyWheel.velocity(rpm) > 0)) {
+  if (Controller1.ButtonL2.pressing() && (flyWheel.velocity(rpm) > -1)) {
     intake.spin(fwd,12,volt);
   }
   else if (Controller1.ButtonR2.pressing()){
