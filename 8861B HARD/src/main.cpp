@@ -119,11 +119,17 @@ void autonomous(void) {
   
   //driveTo(20, 1000, 1);
   //waitUntil(enablePID==false);
-  turnTo(2.7, 700);
+  turnTo(2.48, 700);
   waitUntil(enablePID==false);
-  driveTo(20,2000,1);
-  
-  Drive::Shots(600, 1308, 690);
+
+  driveTo(20,3000,1);
+  waitUntil(enablePID==false);
+  Drive::Shots(600, 1308, 420);
+  turnTo(M_PI+0.1, 1000);
+  waitUntil(enablePID==false);
+  driveTo(-20,3000,1);
+  waitUntil(enablePID==false);
+  intake.spinFor(fwd,-570,deg,100,velocityUnits::pct);
   // driveTo(-12.5, 3000, 1);
   // waitUntil(enablePID == false);
   // turnTo(5.49779, 2000); 
